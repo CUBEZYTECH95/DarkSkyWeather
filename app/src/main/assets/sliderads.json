@@ -1,0 +1,40 @@
+{
+  "bannerads": [
+    {
+      "id": 1,
+      "title": "Dark Sky Weather - Weather Forecast, Weather Live",
+      "rating": "4.2",
+      "download": "10K+",
+      "imageuri": "https://firebasestorage.googleapis.com/v0/b/ad-icon.appspot.com/o/Black_We_AdIcon%2Fdark.png?alt=media&token=38a5e7cf-bf3c-4d14-82b4-e96c3535df14",
+      "url": "https://play.google.com/store/search?q=dark+sky+weather",
+      "description": "Dark Sky Weather with Real-Time Weather Forecast provides you accurate weather information instantly, no matter where you are."
+    },
+    {
+      "id": 2,
+      "title": "Photo Lab Editor-Photo Filters Frames & Effects",
+      "rating": "5.0",
+      "download": "1K+",
+      "imageuri": "https://firebasestorage.googleapis.com/v0/b/ad-icon.appspot.com/o/Black_We_AdIcon%2FPhoto-Editor.png?alt=media&token=59475d82-1f49-4bb9-bbe8-1c0509bef71a",
+      "url": "https://play.google.com/store/apps/details?id=com.bbotdev.photoeditorlab",
+      "description": "Photo lab is photo editing app with shattering effect, photo filters and pic frame. It is uses photo art effect & photo magic effect to your pic."
+    },
+    {
+      "id": 3,
+      "title": "RTO Vahan Registration Details Vehicle Information",
+      "rating": "4.5",
+      "download": "500+",
+      "imageuri": "https://firebasestorage.googleapis.com/v0/b/ad-icon.appspot.com/o/Black_We_AdIcon%2FRTO.png?alt=media&token=a020c7a4-bfec-4d01-b360-75a5357af848",
+      "url": "https://play.google.com/store/apps/details?id=com.bbotdev.vahaninfo",
+      "description": "RTO Vehicle Information App Vehicle Owner Details VAHAN INFO. Let’s your search the following info about your driving license."
+    },
+    {
+      "id": 4,
+      "title": "Gallery - Photo Gallery, Picture Gallery Viewer",
+      "rating": "4.0",
+      "download": "1K+",
+      "imageuri": "https://firebasestorage.googleapis.com/v0/b/ad-icon.appspot.com/o/Black_We_AdIcon%2Fgallery-2.png?alt=media&token=0ac81451-4d5a-4044-bfb9-de692caac680",
+      "url": "https://play.google.com/store/apps/details?id=com.codedevs.gallerypro",
+      "description": "Gallery Photo Viewer which gives you Gallery photo Viewer with best option to replace it with photo gallery app"
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+<resources>
+    <string name="app_name">Accurate Weather Forecast</string>
+    <string name="no_data_found_please_check_your_internet_connection">No Data Found..Please Check Your Internet Connection</string>
+    <string name="about_us">ABOUT US</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="feedback">Feedback</string>
+    <string name="choose_a_city">Choose a City</string>
+    <string name="select_a_city_or_country_to_see_the_weather">Select a City or country to see the weather</string>
+    <string name="search_location">Search Location</string>
+    <string name="temperature_unit">Temperature Unit</string>
+    <string name="celsius_c">Celsius ( c)</string>
+    <string name="notifications">Notification</string>
+    <string name="share_application">Share Application</string>
+    <string name="rate_application">Rate Application</string>
+    <string name="about_us_a">About us</string>
+    <string name="min_max">Min | Max</string>
+    <string name="pressure">Pressure</string>
+    <string name="dew_point">Dew Point</string>
+    <string name="wind">Wind</string>
+    <string name="cloud_cover">Cloud Cover</string>
+    <string name="todo">TODO</string>
+    <string name="hourly_forecast">Hourly Forecast</string>
+    <string name="_24_hours">24 Hours</string>
+    <string name="next_15_days_forecast">Next 15 Days Forecast</string>
+    <string name="_0">0%</string>
+    <string name="c_cloud_cover">CLOUD COVER</string>
+    <string name="_5">5%</string>
+    <string name="w_wind">WIND</string>
+    <string name="daily_forecast">Daily Forecast</string>
+    <string name="_7_days">7 Days</string>
+    <string name="please_check_your_internet_connection">Please Check Your Internet Connection</string>
+    <string name="settings">Settings</string>
+    <string name="general">GENERAL</string>
+    <string name="privacy_policy_url">https://accurateweatherforecast.blogspot.com/2021/02/weather-privacy-policy.html</string>
+    <string name="mail_id">accurateweather806@gmail.com</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="more">More</string>
+    <string name="_4_1">4.1</string>
+    <string name="lorem_ipsum_is_simply_dummy_text_of_the_printing_and_typesetting_industry">Lorem Ipsum is simply dummy text of the printing and typesetting industry.</string>
+</resources>

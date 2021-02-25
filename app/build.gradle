@@ -1,0 +1,67 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    compileSdkVersion 30
+    buildToolsVersion "30.0.3"
+
+    defaultConfig {
+        applicationId "com.weatherlive.darkskyweather"
+        minSdkVersion 19
+        targetSdkVersion 30
+        versionCode 2
+        versionName "1.1"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+
+
+    buildTypes {
+        release {
+
+            debuggable false
+            useProguard true
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            shrinkResources true
+
+        }
+        debug {
+            debuggable true
+            useProguard true
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            shrinkResources true
+        }
+    }
+    compileOptions {
+
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'com.google.android.material:material:1.2.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    testImplementation 'junit:junit:4.+'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    implementation 'com.airbnb.android:lottie:3.6.0'
+    implementation "com.google.android.gms:play-services-location:17.1.0"
+    implementation 'com.karumi:dexter:6.2.2'
+    implementation group: 'org.joda', name: 'joda-convert', version: '2.0.1', classifier: 'classic'
+    implementation 'joda-time:joda-time:2.10'
+    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'com.loopj.android:android-async-http:1.4.9'
+    implementation 'com.android.volley:volley:1.1.1'
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
+    implementation "androidx.constraintlayout:constraintlayout:2.0.4"
+
+    implementation 'com.facebook.android:audience-network-sdk:6.+'
+    implementation 'com.romandanylyk:pageindicatorview:1.0.3'
+}
