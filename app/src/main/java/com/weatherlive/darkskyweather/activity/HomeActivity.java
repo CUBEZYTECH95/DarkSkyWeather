@@ -512,6 +512,7 @@ public class HomeActivity extends AppCompatActivity implements AdListener, ItemC
                         if (!SharedUtils.getDefaultLocationListInfo(getApplicationContext()).equals("")) {
                             locationModelArrayList = new Gson().fromJson(SharedUtils.getDefaultLocationListInfo(getApplicationContext()), type);
                         } else {
+
                             locationModelArrayList = new ArrayList<>();
                         }
                         LocationModel locationModel = new LocationModel();

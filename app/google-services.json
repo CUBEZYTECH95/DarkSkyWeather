@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "570885458632",
+    "project_id": "accurate-weather-2f6c3",
+    "storage_bucket": "accurate-weather-2f6c3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:570885458632:android:148f32c9691617674533fd",
+        "android_client_info": {
+          "package_name": "com.weatherlive.darkskyweather"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "570885458632-5nhhoucv121e4emnqtq9m57fnoieigmv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCeGiskDOJh-b3Bg0ou5xiSM-uV5HYauYU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "570885458632-5nhhoucv121e4emnqtq9m57fnoieigmv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.Editable;
@@ -25,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.weatherlive.darkskyweather.Model.LocationModel;
@@ -54,11 +56,13 @@ public class GetLocationsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     Activity mContext;
     Type type = new TypeToken<List<LocationModel>>() {
     }.getType();
+    FirebaseAnalytics mFirebaseAnalytics;
 
 
     public GetLocationsAdapter(Activity mContext, ArrayList<LocationModel> mList) {
         this.mContext = mContext;
         this.mList = mList;
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(mContext);
     }
 
 
@@ -177,6 +181,8 @@ public class GetLocationsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                             if (msg.what == TRIGGER_AUTO_COMPLETE) {
 
                                 if (!TextUtils.isEmpty(searchViewHolder.autoCompleteTextView.getText())) {
+                                    fireAnalytics("SearchLocation", "text");
+                                    fireAnalytics("SearchLocation", searchViewHolder.autoCompleteTextView.getText().toString());
 
                                     makeApiCall(searchViewHolder.autoCompleteTextView.getText().toString());
                                 }
@@ -326,6 +332,21 @@ public class GetLocationsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
             }
         });
+    }
+
+    private void fireAnalytics(String arg1, String arg2) {
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "LocationAdapter");
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, arg1);
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, arg2);
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+    }
+
+    private void fireDetailAnalytics(String arg0, String arg1) {
+        Bundle params = new Bundle();
+        params.putString("image_path", arg0);
+        params.putString("select_from", arg1);
+        mFirebaseAnalytics.logEvent("select_image", params);
     }
 
     class HeaderViewHolder extends RecyclerView.ViewHolder {

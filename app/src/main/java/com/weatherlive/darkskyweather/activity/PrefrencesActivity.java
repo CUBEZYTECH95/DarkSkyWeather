@@ -20,6 +20,7 @@ import com.facebook.ads.Ad;
 import com.facebook.ads.AdError;
 import com.facebook.ads.CacheFlag;
 import com.facebook.ads.InterstitialAd;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.weatherlive.darkskyweather.BuildConfig;
 import com.weatherlive.darkskyweather.R;
 import com.weatherlive.darkskyweather.utils.ImageConstant;
@@ -36,6 +37,7 @@ public class PrefrencesActivity extends AppCompatActivity {
     Boolean isInternetPresent = false;
     InternetConnection cd;
     private InterstitialAd interstitialAd;
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,10 +54,12 @@ public class PrefrencesActivity extends AppCompatActivity {
 
             ivnotification.setBackgroundResource(R.drawable.ic_off_notification);
         }
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         ivtem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                fireAnalytics("ChangeTempUnit", "text");
                 selectTempratureUnit();
             }
         });
@@ -63,7 +67,7 @@ public class PrefrencesActivity extends AppCompatActivity {
         ivfeed.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                fireAnalytics("FeedBack", "send");
                 sendEmail();
             }
         });
@@ -71,7 +75,7 @@ public class PrefrencesActivity extends AppCompatActivity {
         ivprivacy.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                fireAnalytics("PrivacyPolicy", "text");
                 Intent intent = new Intent(PrefrencesActivity.this, PrivacyPolicesActivity.class);
                 startActivityForResult(intent, 1);
 
@@ -82,6 +86,7 @@ public class PrefrencesActivity extends AppCompatActivity {
         ivshare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                fireAnalytics("ShareApp", "share");
 
                 Intent shareIntent = new Intent(Intent.ACTION_SEND);
                 shareIntent.setType("text/plain");
@@ -96,6 +101,7 @@ public class PrefrencesActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+                fireAnalytics("RateUs", "text");
                 try {
                     Uri uri = Uri.parse("market://details?id=" + getPackageName() + "");
                     Intent goMarket = new Intent(Intent.ACTION_VIEW, uri);
@@ -118,6 +124,7 @@ public class PrefrencesActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+                fireAnalytics("AboutUsPage", "text");
                 startActivity(new Intent(PrefrencesActivity.this, AboutUsActivity.class));
 
             }
@@ -156,6 +163,7 @@ public class PrefrencesActivity extends AppCompatActivity {
         ivmore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                fireAnalytics("MoreAppPage", "text");
                 startActivity(new Intent(PrefrencesActivity.this, MoreAppsActivity.class));
             }
         });
@@ -239,6 +247,20 @@ public class PrefrencesActivity extends AppCompatActivity {
         }
     }
 
+    private void fireAnalytics(String arg1, String arg2) {
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "SettingActivity");
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, arg1);
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, arg2);
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+    }
+
+    private void fireDetailAnalytics(String arg0, String arg1) {
+        Bundle params = new Bundle();
+        params.putString("image_path", arg0);
+        params.putString("select_from", arg1);
+        mFirebaseAnalytics.logEvent("select_image", params);
+    }
 
 
 

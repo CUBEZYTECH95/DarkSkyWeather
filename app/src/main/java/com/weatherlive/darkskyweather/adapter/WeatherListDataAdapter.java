@@ -2,6 +2,7 @@ package com.weatherlive.darkskyweather.adapter;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,17 +19,15 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.facebook.ads.AbstractAdListener;
 import com.facebook.ads.Ad;
 import com.facebook.ads.AdError;
 import com.facebook.ads.AdOptionsView;
-import com.facebook.ads.CacheFlag;
-import com.facebook.ads.InterstitialAd;
 import com.facebook.ads.MediaView;
 import com.facebook.ads.NativeAd;
 import com.facebook.ads.NativeAdBase;
 import com.facebook.ads.NativeAdLayout;
 import com.facebook.ads.NativeAdListener;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.weatherlive.darkskyweather.ItemClick;
 import com.weatherlive.darkskyweather.Model.NextModel;
 import com.weatherlive.darkskyweather.Model.OneHourModel;
@@ -40,7 +39,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 
@@ -71,6 +69,7 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     private CardView adView;
     private NativeAd nativeAd;
     ItemClick itemClick;
+    FirebaseAnalytics mFirebaseAnalytics;
 
 
     public WeatherListDataAdapter(Activity context, ArrayList<NextModel> data, ArrayList<OneHourModel> chartDatas, String WeatherText, String date, String Temp, String Unit, String humidity,
@@ -93,6 +92,7 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         this.address = address;
         this.chartDatas = chartDatas;
         this.itemClick = itemClick;
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(context);
     }
 
 
@@ -147,7 +147,7 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                     searchViewHolder.ivSetting.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-
+                            fireAnalytics("SettingPage", "text");
                             itemClick.click(position);
 
                         }
@@ -155,6 +155,7 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                     searchViewHolder.ivAddLocation.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
+                            fireAnalytics("SearchNewLocation", "text");
                             HomeActivity homeActivity = (HomeActivity) context;
                             homeActivity.OnCLickSearch();
 
@@ -164,6 +165,7 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                     searchViewHolder.getcurrentlocations.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            fireAnalytics("CurrentLocationSet", "location");
                             HomeActivity homeActivity = (HomeActivity) context;
                             homeActivity.getCurrentLocation();
 
@@ -288,6 +290,22 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     @Override
     public int getItemCount() {
         return data.size();
+    }
+
+    private void fireAnalytics(String arg1, String arg2) {
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "WeatherListDataAdapter");
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, arg1);
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, arg2);
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+    }
+
+
+    private void fireDetailAnalytics(String arg0, String arg1) {
+        Bundle params = new Bundle();
+        params.putString("image_path", arg0);
+        params.putString("select_from", arg1);
+        mFirebaseAnalytics.logEvent("select_image", params);
     }
 
     @Override
