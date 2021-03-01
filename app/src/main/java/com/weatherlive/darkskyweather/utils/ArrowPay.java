@@ -37,4 +37,6 @@ public class ArrowPay extends Application {
         return mInstance;
     }
 
+    /*ad*/
+
 }
