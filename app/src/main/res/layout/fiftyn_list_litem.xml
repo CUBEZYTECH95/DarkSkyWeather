@@ -40,8 +40,8 @@
 
                 <ImageView
                     android:id="@+id/ivicon"
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
+                    android:layout_width="@dimen/dp_50"
+                    android:layout_height="@dimen/dp_50"
                     android:layout_gravity="center"
                     android:layout_marginLeft="@dimen/dp_20"
                     android:layout_marginRight="@dimen/dp_20"

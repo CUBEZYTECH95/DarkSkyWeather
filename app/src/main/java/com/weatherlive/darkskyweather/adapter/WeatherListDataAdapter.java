@@ -27,6 +27,7 @@ import com.facebook.ads.NativeAd;
 import com.facebook.ads.NativeAdBase;
 import com.facebook.ads.NativeAdLayout;
 import com.facebook.ads.NativeAdListener;
+import com.facebook.ads.NativeAdsManager;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.weatherlive.darkskyweather.ItemClick;
 import com.weatherlive.darkskyweather.Model.NextModel;
@@ -47,11 +48,12 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     private LayoutInflater layoutInflater;
     private HashSet<Integer> expandedPositionSet;
     public Activity context;
-    private static final int TYPE_SEARCH = 2;
-    private static final int TYPE_ITEM = 0;
+    private static final int TYPE_SEARCH = 0;
+    private static final int TYPE_ITEM = 1;
     ArrayList<NextModel> data;
     ArrayList<OneHourModel> chartDatas;
-
+    private NativeAdsManager nativeAdsManager;
+    private List<NativeAd> nativeAdList = new ArrayList<>();
     String WeatherText = "";
     String date = "";
     String Temp = "";
@@ -64,16 +66,18 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     String wind = "";
     String WeatherIcon = "";
     String address = "";
-
-
     private CardView adView;
     private NativeAd nativeAd;
     ItemClick itemClick;
     FirebaseAnalytics mFirebaseAnalytics;
+    private final int FIRST_ADS_ITEM_POSITION = 5;
+    private final int ADS_FREQUENCY = 6;
+    private List<Object> dataModelList;
 
 
     public WeatherListDataAdapter(Activity context, ArrayList<NextModel> data, ArrayList<OneHourModel> chartDatas, String WeatherText, String date, String Temp, String Unit, String humidity,
                                   String cloudCover, String minmax, String pressure, String dewPoint, String wind, String WeatherIcon, String address, ItemClick itemClick) {
+
         this.layoutInflater = LayoutInflater.from(context);
         expandedPositionSet = new HashSet<>();
         this.context = context;
@@ -100,6 +104,8 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
+        Log.e("view", "onCreateViewHolder: " + viewType);
+
         if (viewType == TYPE_SEARCH) {
 
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.top_list, parent, false);
@@ -110,9 +116,9 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.fiftyn_list_litem, parent, false);
             return new ReyclerViewHolder(view);
 
-        }
-        throw new RuntimeException("there is no type that matches the type " + viewType + " + make sure your using types correctly");
 
+        }
+        throw new RuntimeException(" there is no type that matches the type " + viewType + " + make sure your using types correctly ");
 
     }
 
@@ -171,8 +177,8 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
                         }
                     });
-                    loadNativeAd(searchViewHolder);
 
+                    loadNativeAd(searchViewHolder);
 
                     break;
 
@@ -188,7 +194,10 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                     viewholder.tvwind.setText(data.get(position).getWindValue() + "" + data.get(position).getWindUnit());
 
                     break;
+
+
             }
+
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -286,20 +295,21 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
     }
 
-
     @Override
     public int getItemCount() {
+
         return data.size();
     }
 
     private void fireAnalytics(String arg1, String arg2) {
+
         Bundle bundle = new Bundle();
         bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "WeatherListDataAdapter");
         bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, arg1);
         bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, arg2);
         mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
-    }
 
+    }
 
     private void fireDetailAnalytics(String arg0, String arg1) {
         Bundle params = new Bundle();
@@ -311,12 +321,27 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     @Override
     public int getItemViewType(int position) {
 
+        /*if (position % ADS_FREQUENCY == 0 && position != 0) {
+
+            return AD_TYPE;
+
+        } else if (position == 0) {
+
+            return TYPE_SEARCH;
+
+        } else {
+
+            return TYPE_ITEM;
+        }*/
+
         if (position == 0) {
 
             return TYPE_SEARCH;
         } else {
             return TYPE_ITEM;
         }
+
+
     }
 
 
@@ -515,9 +540,9 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         TextView tvDate, tvweathetext, tvrainp, maxtemp, tvcc, tvwind;
         ImageView ivIcon;
 
-
         public ReyclerViewHolder(View view) {
             super(view);
+
             tvDate = view.findViewById(R.id.tvdatetime);
             tvweathetext = view.findViewById(R.id.tvweathetext);
             tvrainp = view.findViewById(R.id.tvrainp);
@@ -527,6 +552,7 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             ivIcon = view.findViewById(R.id.ivicon);
 
         }
+
     }
 
     @SuppressLint("SimpleDateFormat")
@@ -539,6 +565,13 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     public String setdaymonthFormat(String unformattedDate) throws ParseException {
         @SuppressLint("SimpleDateFormat") Date dateformat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(unformattedDate);
         return (new SimpleDateFormat("dd/MM")).format(dateformat != null ? dateformat : null);
+    }
+
+    static class AdHolder extends RecyclerView.ViewHolder {
+
+        public AdHolder(@NonNull View itemView) {
+            super(itemView);
+        }
     }
 
 

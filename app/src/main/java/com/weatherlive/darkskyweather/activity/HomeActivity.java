@@ -28,13 +28,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.airbnb.lottie.LottieAnimationView;
-import com.facebook.ads.AbstractAdListener;
 import com.facebook.ads.Ad;
 import com.facebook.ads.AdError;
 import com.facebook.ads.AdListener;
 import com.facebook.ads.AdSize;
 import com.facebook.ads.AdView;
-import com.facebook.ads.CacheFlag;
 import com.facebook.ads.InterstitialAd;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
@@ -86,7 +84,6 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 
@@ -125,13 +122,14 @@ public class HomeActivity extends AppCompatActivity implements AdListener, ItemC
     RelativeLayout adContainer;
     AdView bannerAdView;
     private InterstitialAd interstitialAd;
+    List<Object> objectArrayList = new ArrayList<>();
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        
+
 
         adContainer = findViewById(R.id.adContainer);
 
@@ -455,7 +453,7 @@ public class HomeActivity extends AppCompatActivity implements AdListener, ItemC
     @Override
     public void click(int pos) {
 
-        InterstitialAd();
+        onSettingClick();
 
     }
 
@@ -824,6 +822,7 @@ public class HomeActivity extends AppCompatActivity implements AdListener, ItemC
 
         @Override
         public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+
             ChartDatas = new ArrayList<>();
             getNextData();
         }
@@ -978,7 +977,6 @@ public class HomeActivity extends AppCompatActivity implements AdListener, ItemC
 
                         }
 
-                        Log.e("arraylist", "" + nextModelArrayList.size());
 
                         NextModel nextModel = new NextModel();
                         nextModelArrayList.add(0, nextModel);
@@ -989,6 +987,8 @@ public class HomeActivity extends AppCompatActivity implements AdListener, ItemC
                                 Unit, humidity, cloudCover, minmax, pressure, dewPoint, wind, WeatherIcon, address, HomeActivity.this);
                         listData.setAdapter(nextDayDataListAdapter);
                         listData.setHasFixedSize(true);
+
+
 
                     } else {
 
@@ -1297,7 +1297,7 @@ public class HomeActivity extends AppCompatActivity implements AdListener, ItemC
 
     @Override
     public void onAdLoaded(Ad ad) {
-
+        adContainer.setVisibility(View.VISIBLE);
         Log.e("facebookad", "onAdLoaded: " + ad.getPlacementId());
 
     }
@@ -1317,14 +1317,12 @@ public class HomeActivity extends AppCompatActivity implements AdListener, ItemC
         if (bannerAdView != null) {
             bannerAdView.destroy();
         }
-        if (interstitialAd != null) {
-            interstitialAd.destroy();
-        }
+
         super.onDestroy();
     }
 
 
-    private void InterstitialAd() {
+  /*  private void InterstitialAd() {
 
         interstitialAd =
                 new InterstitialAd(this, "365449667893959_365451851227074");
@@ -1381,7 +1379,7 @@ public class HomeActivity extends AppCompatActivity implements AdListener, ItemC
                         .build();
         interstitialAd.loadAd(loadAdConfig);
 
-    }
+    }*/
 
 
 }

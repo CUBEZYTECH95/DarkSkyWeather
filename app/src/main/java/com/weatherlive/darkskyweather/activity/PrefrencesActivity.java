@@ -5,21 +5,28 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 
-import com.facebook.ads.AbstractAdListener;
 import com.facebook.ads.Ad;
 import com.facebook.ads.AdError;
-import com.facebook.ads.CacheFlag;
+import com.facebook.ads.AdOptionsView;
 import com.facebook.ads.InterstitialAd;
+import com.facebook.ads.MediaView;
+import com.facebook.ads.NativeAd;
+import com.facebook.ads.NativeAdBase;
+import com.facebook.ads.NativeAdLayout;
+import com.facebook.ads.NativeAdListener;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.weatherlive.darkskyweather.BuildConfig;
 import com.weatherlive.darkskyweather.R;
@@ -27,24 +34,48 @@ import com.weatherlive.darkskyweather.utils.ImageConstant;
 import com.weatherlive.darkskyweather.utils.InternetConnection;
 import com.weatherlive.darkskyweather.utils.SaveUserInfoUtils;
 
-import java.util.EnumSet;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PrefrencesActivity extends AppCompatActivity {
 
 
-    ImageView ivtem, ivshare, ivrate, ivback, ivabouts, ivnotification, ivfeed, ivprivacy, ivmore;
-    TextView tvbottomtemp;
+    ImageView ivtem, ivshare, ivrate, ivback, ivabouts, ivnotification, ivfeed, ivprivacy, ivblank;
+    TextView tvbottomtemp, tvad;
     Boolean isInternetPresent = false;
     InternetConnection cd;
     private InterstitialAd interstitialAd;
     private FirebaseAnalytics mFirebaseAnalytics;
+    private NativeAd nativeAd;
+    NativeAdLayout native_ad_container;
+    CardView adView;
+    private boolean isLoading;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_prefrences);
 
+        tvad = findViewById(R.id.tvad);
+        ivtem = (ImageView) findViewById(R.id.ivtem);
+        tvbottomtemp = findViewById(R.id.tvbottomtemp);
+        ivrate = findViewById(R.id.ivrate);
+        ivback = findViewById(R.id.ivback);
+        ivabouts = findViewById(R.id.ivabouts);
+        ivnotification = findViewById(R.id.ivnotification);
+        ivfeed = findViewById(R.id.ivfeed);
+        ivprivacy = findViewById(R.id.ivprivacy);
+        ivblank = findViewById(R.id.ivblank);
+
+        native_ad_container = findViewById(R.id.native_ad_container);
+        ivshare = findViewById(R.id.ivshare);
+
         init();
+
+        loadNativeAd();
+
 
         if (SaveUserInfoUtils.getFromUserDefaults(getApplicationContext(), ImageConstant.PARAM_VALID_NOTIFICATION_ON_OFF).equals("")) {
 
@@ -75,6 +106,7 @@ public class PrefrencesActivity extends AppCompatActivity {
         ivprivacy.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 fireAnalytics("PrivacyPolicy", "text");
                 Intent intent = new Intent(PrefrencesActivity.this, PrivacyPolicesActivity.class);
                 startActivityForResult(intent, 1);
@@ -148,21 +180,14 @@ public class PrefrencesActivity extends AppCompatActivity {
 
     }
 
-    private void init() {
-        ivtem = (ImageView) findViewById(R.id.ivtem);
-        tvbottomtemp = findViewById(R.id.tvbottomtemp);
-        ivshare = findViewById(R.id.ivshare);
-        ivrate = findViewById(R.id.ivrate);
-        ivback = findViewById(R.id.ivback);
-        ivabouts = findViewById(R.id.ivabouts);
-        ivnotification = findViewById(R.id.ivnotification);
-        ivfeed = findViewById(R.id.ivfeed);
-        ivprivacy = findViewById(R.id.ivprivacy);
-        ivmore = findViewById(R.id.ivmore);
 
-        ivmore.setOnClickListener(new View.OnClickListener() {
+    private void init() {
+
+
+        ivblank.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 fireAnalytics("MoreAppPage", "text");
                 startActivity(new Intent(PrefrencesActivity.this, MoreAppsActivity.class));
             }
@@ -263,6 +288,100 @@ public class PrefrencesActivity extends AppCompatActivity {
     }
 
 
+    private void loadNativeAd() {
+
+
+        nativeAd = new NativeAd(this, "IMG_16_9_APP_INSTALL#365449667893959_365450307893895");
+        NativeAdListener nativeAdListener = new NativeAdListener() {
+
+            @Override
+            public void onMediaDownloaded(Ad ad) {
+
+            }
+
+            @Override
+            public void onError(Ad ad, AdError adError) {
+
+                tvad.setVisibility(View.GONE);
+                native_ad_container.setVisibility(View.GONE);
+
+
+            }
+
+            @Override
+            public void onAdLoaded(Ad ad) {
+                // Race condition, load() called again before last ad was displayed
+                native_ad_container.setVisibility(View.VISIBLE);
+                tvad.setVisibility(View.VISIBLE);
+                isLoading = true;
+                if (nativeAd == null || nativeAd != ad) {
+                    return;
+                }
+                // Inflate Native Ad into Container
+                inflateAd(nativeAd);
+            }
+
+            @Override
+            public void onAdClicked(Ad ad) {
+
+            }
+
+            @Override
+            public void onLoggingImpression(Ad ad) {
+
+            }
+
+        };
+
+        // Request an ad
+        nativeAd.loadAd(
+                nativeAd.buildLoadAdConfig()
+                        .withAdListener(nativeAdListener)
+                        .withMediaCacheFlag(NativeAdBase.MediaCacheFlag.ALL)
+                        .build());
+
+
+    }
+
+    private void inflateAd(NativeAd nativeAd) {
+
+        nativeAd.unregisterView();
+        LayoutInflater inflater = LayoutInflater.from(this);
+
+        adView = (CardView) inflater.inflate(R.layout.native_ad_unit, native_ad_container, false);
+        native_ad_container.addView(adView);
+
+        // Add the AdOptionsView
+        LinearLayout adChoicesContainer = adView.findViewById(R.id.ad_choices_container);
+        AdOptionsView adOptionsView = new AdOptionsView(this, nativeAd, native_ad_container);
+        adChoicesContainer.removeAllViews();
+        adChoicesContainer.addView(adOptionsView, 0);
+
+        // Create native UI using the ad metadata.
+        MediaView nativeAdIcon = adView.findViewById(R.id.native_ad_icon);
+        TextView nativeAdTitle = adView.findViewById(R.id.native_ad_title);
+        MediaView nativeAdMedia = adView.findViewById(R.id.native_ad_media);
+        TextView nativeAdSocialContext = adView.findViewById(R.id.native_ad_social_context);
+        TextView nativeAdBody = adView.findViewById(R.id.native_ad_body);
+        TextView sponsoredLabel = adView.findViewById(R.id.native_ad_sponsored_label);
+        Button nativeAdCallToAction = adView.findViewById(R.id.native_ad_call_to_action);
+
+
+        // Set the Text.
+        nativeAdTitle.setText(nativeAd.getAdvertiserName());
+        nativeAdBody.setText(nativeAd.getAdBodyText());
+        nativeAdSocialContext.setText(nativeAd.getAdSocialContext());
+        nativeAdCallToAction.setVisibility(nativeAd.hasCallToAction() ? View.VISIBLE : View.INVISIBLE);
+        nativeAdCallToAction.setText(nativeAd.getAdCallToAction());
+        sponsoredLabel.setText(nativeAd.getSponsoredTranslation());
+
+        List<View> clickableViews = new ArrayList<>();
+        clickableViews.add(nativeAdTitle);
+        clickableViews.add(nativeAdCallToAction);
+
+        // Register the Title and CTA button to listen for clicks.
+        nativeAd.registerViewForInteraction(adView, nativeAdMedia, nativeAdIcon, clickableViews);
+    }
 
    /* @Override
     protected void onDestroy() {

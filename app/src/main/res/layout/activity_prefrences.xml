@@ -130,9 +130,23 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_marginTop="@dimen/dp_30"
+            android:src="@drawable/ic_group_more"
             app:layout_constraintLeft_toRightOf="@id/ivnotification"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/viewrecta" />
+
+
+        <TextView
+            android:id="@+id/tvmore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_5"
+            android:text="@string/more"
+            android:textColor="@color/grey"
+            android:textSize="@dimen/sp_12"
+            app:layout_constraintLeft_toLeftOf="@id/ivblank"
+            app:layout_constraintRight_toRightOf="@id/ivblank"
+            app:layout_constraintTop_toBottomOf="@id/ivblank" />
 
 
         <View
@@ -159,8 +173,8 @@
 
         <ImageView
             android:id="@+id/ivshare"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
             android:layout_marginTop="@dimen/dp_30"
             android:clickable="true"
             android:focusable="true"
@@ -174,7 +188,7 @@
             android:id="@+id/tvtemp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/dp_5"
+            android:layout_marginTop="@dimen/dp_10"
             android:text="@string/share_application"
             android:textColor="@color/grey"
             android:textSize="@dimen/sp_12"
@@ -185,14 +199,14 @@
 
         <ImageView
             android:id="@+id/ivrate"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
             android:layout_marginTop="@dimen/dp_30"
             android:clickable="true"
             android:focusable="true"
             android:src="@drawable/ic_rate_settings"
             app:layout_constraintLeft_toRightOf="@id/ivshare"
-            app:layout_constraintRight_toLeftOf="@id/ivabouts"
+            app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/vaboutus" />
 
 
@@ -200,7 +214,7 @@
             android:id="@+id/tvpre"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/dp_5"
+            android:layout_marginTop="@dimen/dp_10"
             android:text="@string/rate_application"
             android:textColor="@color/grey"
             android:textSize="@dimen/sp_12"
@@ -209,34 +223,34 @@
             app:layout_constraintTop_toBottomOf="@id/ivrate" />
 
 
-        <ImageView
-            android:id="@+id/ivabouts"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_marginTop="@dimen/dp_30"
-            android:src="@drawable/ic_abouts_us"
-            app:layout_constraintLeft_toRightOf="@id/ivrate"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/vaboutus" />
+        <!-- <ImageView
+             android:id="@+id/ivabouts"
+             android:layout_width="100dp"
+             android:layout_height="100dp"
+             android:layout_marginTop="@dimen/dp_30"
+             android:src="@drawable/ic_abouts_us"
+             app:layout_constraintLeft_toRightOf="@id/ivrate"
+             app:layout_constraintRight_toRightOf="parent"
+             app:layout_constraintTop_toBottomOf="@id/vaboutus" />
 
 
-        <TextView
-            android:id="@+id/tvaboutus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/dp_5"
-            android:text="@string/about_us_a"
-            android:textColor="@color/grey"
-            android:textSize="@dimen/sp_12"
-            app:layout_constraintLeft_toLeftOf="@id/ivabouts"
-            app:layout_constraintRight_toRightOf="@id/ivabouts"
-            app:layout_constraintTop_toBottomOf="@id/ivabouts" />
+         <TextView
+             android:id="@+id/tvaboutus"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_marginTop="@dimen/dp_5"
+             android:text="@string/about_us_a"
+             android:textColor="@color/grey"
+             android:textSize="@dimen/sp_12"
+             app:layout_constraintLeft_toLeftOf="@id/ivabouts"
+             app:layout_constraintRight_toRightOf="@id/ivabouts"
+             app:layout_constraintTop_toBottomOf="@id/ivabouts" />-->
 
 
         <ImageView
             android:id="@+id/ivfeed"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
             android:layout_marginTop="@dimen/dp_30"
             android:src="@drawable/ic_feedback_settings"
             app:layout_constraintLeft_toLeftOf="@id/ivshare"
@@ -248,7 +262,7 @@
             android:id="@+id/tvfeed"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/dp_5"
+            android:layout_marginTop="@dimen/dp_10"
             android:text="@string/feedback"
             android:textColor="@color/grey"
             android:textSize="@dimen/sp_12"
@@ -258,21 +272,76 @@
 
 
         <ImageView
-            android:id="@+id/ivprivacy"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:id="@+id/ivabouts"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
             android:layout_marginTop="@dimen/dp_30"
-            android:src="@drawable/ic_privacy_policy"
+            android:src="@drawable/ic_abouts_us"
+            app:layout_constraintLeft_toLeftOf="@+id/tvfeed"
+            app:layout_constraintRight_toRightOf="@+id/tvfeed"
+            app:layout_constraintTop_toBottomOf="@id/tvfeed" />
+
+
+        <TextView
+            android:id="@+id/tvaboutus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_10"
+            android:text="@string/about_us_a"
+            android:textColor="@color/grey"
+            android:textSize="@dimen/sp_12"
+            app:layout_constraintLeft_toLeftOf="@id/ivabouts"
+            app:layout_constraintRight_toRightOf="@id/ivabouts"
+            app:layout_constraintTop_toBottomOf="@id/ivabouts" />
+
+
+        <com.facebook.ads.NativeAdLayout
+            android:id="@+id/native_ad_container"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_marginTop="@dimen/dp_30"
+            android:background="@drawable/ic_btn_back"
+            android:visibility="gone"
             app:layout_constraintLeft_toLeftOf="@id/ivrate"
             app:layout_constraintRight_toRightOf="@id/ivrate"
             app:layout_constraintTop_toBottomOf="@id/tvpre" />
+
+
+
+        <TextView
+            android:id="@+id/tvad"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_10"
+            android:text="Ad"
+            android:visibility="gone"
+            android:textColor="@color/grey"
+            android:textSize="@dimen/sp_12"
+            app:layout_constraintLeft_toLeftOf="@id/native_ad_container"
+            app:layout_constraintRight_toRightOf="@id/native_ad_container"
+            app:layout_constraintTop_toBottomOf="@id/native_ad_container"
+             />
+
+
+
+
+
+        <ImageView
+            android:id="@+id/ivprivacy"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_marginTop="@dimen/dp_30"
+            android:src="@drawable/ic_privacy_policy"
+            app:layout_constraintLeft_toLeftOf="@id/native_ad_container"
+            app:layout_constraintRight_toRightOf="@id/native_ad_container"
+            app:layout_constraintTop_toBottomOf="@id/tvad" />
 
 
         <TextView
             android:id="@+id/tvivprivacy"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/dp_5"
+            android:layout_marginTop="@dimen/dp_10"
             android:text="@string/privacy_policy"
             android:textColor="@color/grey"
             android:textSize="@dimen/sp_12"
@@ -281,28 +350,16 @@
             app:layout_constraintTop_toBottomOf="@id/ivprivacy" />
 
 
-        <ImageView
-            android:id="@+id/ivmore"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_marginTop="@dimen/dp_30"
-            android:src="@drawable/ic_group_more"
-            app:layout_constraintLeft_toLeftOf="@id/ivabouts"
-            app:layout_constraintRight_toRightOf="@id/ivabouts"
-            app:layout_constraintTop_toBottomOf="@id/tvaboutus" />
-
-
-        <TextView
-            android:id="@+id/tvmore"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/dp_5"
-            android:text="@string/more"
-            android:textColor="@color/grey"
-            android:textSize="@dimen/sp_12"
-            app:layout_constraintLeft_toLeftOf="@id/ivmore"
-            app:layout_constraintRight_toRightOf="@id/ivmore"
-            app:layout_constraintTop_toBottomOf="@id/ivmore" />
+       <!-- <com.facebook.ads.NativeAdLayout
+            android:id="@+id/native_ad_container"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_marginTop="40dp"
+            android:background="@drawable/ic_btn_back"
+            android:visibility="visible"
+            app:layout_constraintLeft_toLeftOf="@id/ivprivacy"
+            app:layout_constraintRight_toRightOf="@id/ivprivacy"
+            app:layout_constraintTop_toBottomOf="@id/ivprivacy" />-->
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -7,8 +7,14 @@ import android.os.Handler;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.airbnb.lottie.LottieAnimationView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.RequestConfiguration;
 import com.weatherlive.darkskyweather.R;
 import com.weatherlive.darkskyweather.utils.InternetConnection;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class SplashActivity extends AppCompatActivity {
 
@@ -26,6 +32,8 @@ public class SplashActivity extends AppCompatActivity {
         animationView.enableMergePathsForKitKatAndAbove(true);
         animationView.playAnimation();
         animationView.cancelAnimation();
+
+
 
         cd = new InternetConnection(getApplicationContext());
         isInternetPresent = cd.isConnectingToInternet();

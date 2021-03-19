@@ -31,7 +31,7 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.Holder> {
     public GridAdapter(Context context, ArrayList<SliderModel> arrayList) {
         this.context = context;
         this.arrayList = arrayList;
-        layoutInflater = (LayoutInflater) context.getSystemService(context.LAYOUT_INFLATER_SERVICE);
+        layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     @NonNull
