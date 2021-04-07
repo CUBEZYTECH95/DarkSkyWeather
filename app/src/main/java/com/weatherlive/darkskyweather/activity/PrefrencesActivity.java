@@ -287,11 +287,10 @@ public class PrefrencesActivity extends AppCompatActivity {
         mFirebaseAnalytics.logEvent("select_image", params);
     }
 
-
     private void loadNativeAd() {
 
 
-        nativeAd = new NativeAd(this, "IMG_16_9_APP_INSTALL#365449667893959_365450307893895");
+        nativeAd = new NativeAd(this, "365449667893959_365450307893895");
         NativeAdListener nativeAdListener = new NativeAdListener() {
 
             @Override

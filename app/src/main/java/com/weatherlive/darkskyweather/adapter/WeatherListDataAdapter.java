@@ -70,18 +70,18 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     private NativeAd nativeAd;
     ItemClick itemClick;
     FirebaseAnalytics mFirebaseAnalytics;
-    private final int FIRST_ADS_ITEM_POSITION = 5;
-    private final int ADS_FREQUENCY = 6;
-    private List<Object> dataModelList;
+    List<Object> objectArrayList = new ArrayList<>();
+    Weather15Data weather15Days;
 
 
-    public WeatherListDataAdapter(Activity context, ArrayList<NextModel> data, ArrayList<OneHourModel> chartDatas, String WeatherText, String date, String Temp, String Unit, String humidity,
+    public WeatherListDataAdapter(Activity context, ArrayList<NextModel> data, List<Object> objectArrayList, ArrayList<OneHourModel> chartDatas, String WeatherText, String date, String Temp, String Unit, String humidity,
                                   String cloudCover, String minmax, String pressure, String dewPoint, String wind, String WeatherIcon, String address, ItemClick itemClick) {
 
         this.layoutInflater = LayoutInflater.from(context);
         expandedPositionSet = new HashSet<>();
         this.context = context;
         this.data = data;
+        this.objectArrayList = objectArrayList;
         this.WeatherText = WeatherText;
         this.date = date;
         this.Temp = Temp;
@@ -97,6 +97,8 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         this.chartDatas = chartDatas;
         this.itemClick = itemClick;
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(context);
+        weather15Days = new Weather15Data(objectArrayList, objectArrayList.size(), context);
+        weather15Days.initNativeAds();
     }
 
 
@@ -105,103 +107,71 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
         Log.e("view", "onCreateViewHolder: " + viewType);
-
-        if (viewType == TYPE_SEARCH) {
-
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.top_list, parent, false);
-            return new HEaderViewHolder(view);
-
-        } else if (viewType == TYPE_ITEM) {
-
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.fiftyn_list_litem, parent, false);
-            return new ReyclerViewHolder(view);
-
-
-        }
-        throw new RuntimeException(" there is no type that matches the type " + viewType + " + make sure your using types correctly ");
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.top_list, parent, false);
+        return new HEaderViewHolder(view);
 
     }
 
     @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+
+        HEaderViewHolder searchViewHolder = (HEaderViewHolder) holder;
+
+        searchViewHolder.WeatherText.setText(WeatherText);
+        searchViewHolder.tvLocation.setText(address);
+        searchViewHolder.tvTemp.setText(Temp);
+        searchViewHolder.tvUnit.setText(Unit);
+        searchViewHolder.tvtempdata.setText(minmax);
+        searchViewHolder.tvpredata.setText(pressure);
+        searchViewHolder.tvdewdata.setText(dewPoint);
+        searchViewHolder.tvhumiditydata.setText(humidity);
+        searchViewHolder.tvwinddata.setText(wind);
+        searchViewHolder.tvccdata.setText(cloudCover);
+
+        String i = WeatherIcon;
+        int iconID_1 = context.getResources().getIdentifier("iv_" + i, "drawable", context.getPackageName());
+        searchViewHolder.ivcurrentimg.setImageResource(iconID_1);
         try {
-            int viewType = getItemViewType(position);
-            switch (viewType) {
-
-                case TYPE_SEARCH:
-
-                    HEaderViewHolder searchViewHolder = (HEaderViewHolder) holder;
-
-                    searchViewHolder.WeatherText.setText(WeatherText);
-                    searchViewHolder.tvLocation.setText(address);
-                    searchViewHolder.tvTemp.setText(Temp);
-                    searchViewHolder.tvUnit.setText(Unit);
-                    searchViewHolder.tvtempdata.setText(minmax);
-                    searchViewHolder.tvpredata.setText(pressure);
-                    searchViewHolder.tvdewdata.setText(dewPoint);
-                    searchViewHolder.tvhumiditydata.setText(humidity);
-                    searchViewHolder.tvwinddata.setText(wind);
-                    searchViewHolder.tvccdata.setText(cloudCover);
-
-                    String i = WeatherIcon;
-                    int iconID_1 = context.getResources().getIdentifier("iv_" + i, "drawable", context.getPackageName());
-                    searchViewHolder.ivcurrentimg.setImageResource(iconID_1);
-
-                    searchViewHolder.tvcurrentdate.setText(setDateFormat(date));
-
-                    searchViewHolder.ivSetting.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            fireAnalytics("SettingPage", "text");
-                            itemClick.click(position);
-
-                        }
-                    });
-                    searchViewHolder.ivAddLocation.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            fireAnalytics("SearchNewLocation", "text");
-                            HomeActivity homeActivity = (HomeActivity) context;
-                            homeActivity.OnCLickSearch();
+            searchViewHolder.tvcurrentdate.setText(setDateFormat(date));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
 
 
-                        }
-                    });
-                    searchViewHolder.getcurrentlocations.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            fireAnalytics("CurrentLocationSet", "location");
-                            HomeActivity homeActivity = (HomeActivity) context;
-                            homeActivity.getCurrentLocation();
+        searchViewHolder.ivSetting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                fireAnalytics("SettingPage", "text");
+                itemClick.click(position);
 
-                        }
-                    });
-
-                    loadNativeAd(searchViewHolder);
-
-                    break;
-
-                case TYPE_ITEM:
-
-                    final ReyclerViewHolder viewholder = (ReyclerViewHolder) holder;
-                    viewholder.tvDate.setText(data.get(position).getEpochDate());
-                    viewholder.tvrainp.setText("" + data.get(position).getRainProbability() + "%");
-                    viewholder.maxtemp.setText("" + Math.round(Float.parseFloat(data.get(position).getMaxTempValue())) + " " + "" + (char) 0x00B0 + data.get(position).getMaxTempUnit());
-                    viewholder.ivIcon.setBackgroundResource(ImageConstant.weatherIcon[Integer.parseInt(data.get(position).getIcon()) - 1]);
-                    viewholder.tvweathetext.setText("" + data.get(position).getIconPhrase());
-                    viewholder.tvcc.setText(data.get(position).getCloudCover() + "%");
-                    viewholder.tvwind.setText(data.get(position).getWindValue() + "" + data.get(position).getWindUnit());
-
-                    break;
+            }
+        });
+        searchViewHolder.ivAddLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                fireAnalytics("SearchNewLocation", "text");
+                HomeActivity homeActivity = (HomeActivity) context;
+                homeActivity.OnCLickSearch();
 
 
             }
+        });
+        searchViewHolder.getcurrentlocations.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fireAnalytics("CurrentLocationSet", "location");
+                HomeActivity homeActivity = (HomeActivity) context;
+                homeActivity.getCurrentLocation();
 
+            }
+        });
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        searchViewHolder.rv_15days.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, false));
+        searchViewHolder.rv_15days.setAdapter(weather15Days);
+
+        loadNativeAd(searchViewHolder);
+
 
     }
 
@@ -245,11 +215,11 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         };
 
         // Request an ad
-        nativeAd.loadAd(
-                nativeAd.buildLoadAdConfig()
-                        .withAdListener(nativeAdListener)
-                        .withMediaCacheFlag(NativeAdBase.MediaCacheFlag.ALL)
-                        .build());
+        nativeAd.loadAd(nativeAd.buildLoadAdConfig()
+                .withAdListener(nativeAdListener)
+                .withMediaCacheFlag(NativeAdBase.MediaCacheFlag.ALL)
+                .build());
+
 
     }
 
@@ -298,7 +268,7 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     @Override
     public int getItemCount() {
 
-        return data.size();
+        return 1;
     }
 
     private void fireAnalytics(String arg1, String arg2) {
@@ -316,32 +286,6 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         params.putString("image_path", arg0);
         params.putString("select_from", arg1);
         mFirebaseAnalytics.logEvent("select_image", params);
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-
-        /*if (position % ADS_FREQUENCY == 0 && position != 0) {
-
-            return AD_TYPE;
-
-        } else if (position == 0) {
-
-            return TYPE_SEARCH;
-
-        } else {
-
-            return TYPE_ITEM;
-        }*/
-
-        if (position == 0) {
-
-            return TYPE_SEARCH;
-        } else {
-            return TYPE_ITEM;
-        }
-
-
     }
 
 
@@ -386,6 +330,7 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         LinearLayout listdailyChart;
         ArrayList<NextModel> nextModelArrayList;
         NativeAdLayout nativeAdLayout;
+        RecyclerView rv_15days;
 
         @SuppressLint("SetTextI18n")
         public HEaderViewHolder(View view) {
@@ -403,6 +348,7 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             tvLocation = (TextView) view.findViewById(R.id.tvLocation);
             tvTemp = (TextView) view.findViewById(R.id.tvTemp);
             tvUnit = (TextView) view.findViewById(R.id.tvUnit);
+            rv_15days = view.findViewById(R.id.rv_15days);
 
             LinearLayoutManager mLayoutManager = new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false);
             listHourly.setLayoutManager(mLayoutManager);
@@ -449,7 +395,7 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                     tvMaxChart.setText("" + Math.round(Float.parseFloat(data.get(i).getMaxTempValue())) + " " + "" + (char) 0x00B0);
 
                     String date = data.get(i).getEpochDate();
-                    tvweek.setText(date.substring(0, 3));
+                    tvweek.setText(date.substring(0,3));
                     try {
                         tvdaymonth.setText(setdaymonthFormat(data.get(i).getDate()));
                     } catch (ParseException e) {

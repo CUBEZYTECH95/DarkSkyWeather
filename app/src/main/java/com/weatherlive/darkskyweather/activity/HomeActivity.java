@@ -34,6 +34,8 @@ import com.facebook.ads.AdListener;
 import com.facebook.ads.AdSize;
 import com.facebook.ads.AdView;
 import com.facebook.ads.InterstitialAd;
+import com.facebook.ads.NativeAd;
+import com.facebook.ads.NativeAdsManager;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -122,6 +124,9 @@ public class HomeActivity extends AppCompatActivity implements AdListener, ItemC
     RelativeLayout adContainer;
     AdView bannerAdView;
     private InterstitialAd interstitialAd;
+    private List<NativeAd> mAds = new ArrayList<>();
+    private NativeAdsManager mAdsManager;
+    int NUM_ADS = 5;
     List<Object> objectArrayList = new ArrayList<>();
 
 
@@ -832,6 +837,7 @@ public class HomeActivity extends AppCompatActivity implements AdListener, ItemC
 
     GetNext10DaysWeatherData getNext10DaysWeatherData;
 
+
     private void getNextData() {
 
         String url = "";
@@ -888,6 +894,7 @@ public class HomeActivity extends AppCompatActivity implements AdListener, ItemC
             int day = 0;
             JSONObject json_data = null;
             nextModelArrayList = new ArrayList<>();
+            objectArrayList = new ArrayList<>();
             try {
                 if (res.length() > 0) {
                     json_data = new JSONObject(res);
@@ -973,7 +980,9 @@ public class HomeActivity extends AppCompatActivity implements AdListener, ItemC
                             nextModel.setHoursOfSnow(jsonObjectday.getString("HoursOfSnow"));
                             nextModel.setHoursOfIce(jsonObjectday.getString("HoursOfIce"));
                             nextModel.setCloudCover(jsonObjectday.getString("CloudCover"));
+
                             nextModelArrayList.add(nextModel);
+                            objectArrayList.add(nextModel);
 
                         }
 
@@ -983,11 +992,10 @@ public class HomeActivity extends AppCompatActivity implements AdListener, ItemC
 
                         /*LinearLayoutManager linearLayoutManager = new LinearLayoutManager(HomeActivity.this, LinearLayoutManager.VERTICAL, false);*/
                         listData.setLayoutManager(new SpeedyLinearLayoutManager(HomeActivity.this, SpeedyLinearLayoutManager.VERTICAL, false));
-                        nextDayDataListAdapter = new WeatherListDataAdapter(HomeActivity.this, nextModelArrayList, ChartDatas, WeatherText, date, Temp,
+                        nextDayDataListAdapter = new WeatherListDataAdapter(HomeActivity.this, nextModelArrayList, objectArrayList, ChartDatas, WeatherText, date, Temp,
                                 Unit, humidity, cloudCover, minmax, pressure, dewPoint, wind, WeatherIcon, address, HomeActivity.this);
                         listData.setAdapter(nextDayDataListAdapter);
                         listData.setHasFixedSize(true);
-
 
 
                     } else {
