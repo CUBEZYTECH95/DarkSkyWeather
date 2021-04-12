@@ -74,6 +74,7 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     Weather15Data weather15Days;
 
 
+
     public WeatherListDataAdapter(Activity context, ArrayList<NextModel> data, List<Object> objectArrayList, ArrayList<OneHourModel> chartDatas, String WeatherText, String date, String Temp, String Unit, String humidity,
                                   String cloudCover, String minmax, String pressure, String dewPoint, String wind, String WeatherIcon, String address, ItemClick itemClick) {
 
@@ -150,6 +151,8 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         searchViewHolder.ivAddLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+
                 fireAnalytics("SearchNewLocation", "text");
                 HomeActivity homeActivity = (HomeActivity) context;
                 homeActivity.OnCLickSearch();
@@ -171,6 +174,7 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         searchViewHolder.rv_15days.setAdapter(weather15Days);
 
         loadNativeAd(searchViewHolder);
+
 
 
     }
@@ -395,7 +399,7 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                     tvMaxChart.setText("" + Math.round(Float.parseFloat(data.get(i).getMaxTempValue())) + " " + "" + (char) 0x00B0);
 
                     String date = data.get(i).getEpochDate();
-                    tvweek.setText(date.substring(0,3));
+                    tvweek.setText(date.substring(0, 3));
                     try {
                         tvdaymonth.setText(setdaymonthFormat(data.get(i).getDate()));
                     } catch (ParseException e) {
@@ -519,6 +523,33 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             super(itemView);
         }
     }
+
+    /*public void loadfull() {
+
+        AdRequest adRequest = new AdRequest.Builder().build();
+
+        InterstitialAd.load(context, "ca-app-pub-3940256099942544/1033173712", adRequest, new InterstitialAdLoadCallback() {
+            @Override
+            public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+                // The mInterstitialAd reference will be null until
+                // an ad is loaded.
+                mInterstitialAd = interstitialAd;
+                if (mInterstitialAd != null) {
+                    mInterstitialAd.show(context);
+                }
+
+            }
+
+            @Override
+            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                // Handle the error
+
+                mInterstitialAd = null;
+            }
+
+
+        });
+    }*/
 
 
 }

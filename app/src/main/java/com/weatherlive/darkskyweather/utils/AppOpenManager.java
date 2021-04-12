@@ -49,27 +49,32 @@ public class AppOpenManager implements Application.ActivityLifecycleCallbacks {
                      */
                     @Override
                     public void onAppOpenAdLoaded(AppOpenAd ad) {
+                        Log.e("--", "onAdLoaded: " + ad.toString());
                         AppOpenManager.this.appOpenAd = ad;
                         AppOpenManager.this.loadTime = (new Date()).getTime();
+
                     }
 
                     @Override
                     public void onAdLoaded(@NonNull AppOpenAd appOpenAd) {
                         super.onAdLoaded(appOpenAd);
+                        Log.e("--", "onAdLoaded: " + appOpenAd.toString());
                         AppOpenManager.this.appOpenAd = appOpenAd;
                         AppOpenManager.this.loadTime = (new Date()).getTime();
                         showAdIfAvailable();
                         currentActivity = null;
+
                     }
 
                     @Override
                     public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
                         super.onAdFailedToLoad(loadAdError);
-                        Log.e("TAG", "onAdFailedToLoad: "+loadAdError.getMessage());
-                        AdRequest request = getAdRequest();
+                        Log.e("TAG", "onAdFailedToLoad: " + loadAdError.getMessage());
+                        /*AdRequest request = getAdRequest();
                         AppOpenAd.load(
                                 arrowPay, AD_UNIT_ID, request,
-                                AppOpenAd.APP_OPEN_AD_ORIENTATION_PORTRAIT, loadCallback);
+                                AppOpenAd.APP_OPEN_AD_ORIENTATION_PORTRAIT, loadCallback);*/
+
                     }
 
                     /**
@@ -77,13 +82,17 @@ public class AppOpenManager implements Application.ActivityLifecycleCallbacks {
                      *
                      * @param loadAdError the error.
                      */
+
                     @Override
                     public void onAppOpenAdFailedToLoad(LoadAdError loadAdError) {
+
+                        Log.e("--", "onAdLoaded: " + loadAdError.getMessage());
                         // Handle the error.
                     }
                 };
 
         AdRequest request = getAdRequest();
+
         AppOpenAd.load(
                 arrowPay, AD_UNIT_ID, request,
                 AppOpenAd.APP_OPEN_AD_ORIENTATION_PORTRAIT, loadCallback);

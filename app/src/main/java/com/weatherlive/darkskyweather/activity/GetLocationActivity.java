@@ -32,6 +32,8 @@ public class GetLocationActivity extends AppCompatActivity {
     RecyclerView listLocation;
     ImageView imageView;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,7 +43,13 @@ public class GetLocationActivity extends AppCompatActivity {
         isInternetPresent = cd.isConnectingToInternet();
         init();
 
+
+
+
+
+
     }
+
 
     private void init() {
 

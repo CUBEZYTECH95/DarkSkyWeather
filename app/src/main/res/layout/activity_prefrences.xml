@@ -295,7 +295,7 @@
             app:layout_constraintTop_toBottomOf="@id/ivabouts" />
 
 
-        <com.facebook.ads.NativeAdLayout
+        <FrameLayout
             android:id="@+id/native_ad_container"
             android:layout_width="150dp"
             android:layout_height="150dp"
@@ -307,23 +307,18 @@
             app:layout_constraintTop_toBottomOf="@id/tvpre" />
 
 
-
         <TextView
             android:id="@+id/tvad"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/dp_10"
             android:text="Ad"
-            android:visibility="gone"
             android:textColor="@color/grey"
             android:textSize="@dimen/sp_12"
+            android:visibility="gone"
             app:layout_constraintLeft_toLeftOf="@id/native_ad_container"
             app:layout_constraintRight_toRightOf="@id/native_ad_container"
-            app:layout_constraintTop_toBottomOf="@id/native_ad_container"
-             />
-
-
-
+            app:layout_constraintTop_toBottomOf="@id/native_ad_container" />
 
 
         <ImageView
@@ -350,16 +345,16 @@
             app:layout_constraintTop_toBottomOf="@id/ivprivacy" />
 
 
-       <!-- <com.facebook.ads.NativeAdLayout
-            android:id="@+id/native_ad_container"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
-            android:layout_marginTop="40dp"
-            android:background="@drawable/ic_btn_back"
-            android:visibility="visible"
-            app:layout_constraintLeft_toLeftOf="@id/ivprivacy"
-            app:layout_constraintRight_toRightOf="@id/ivprivacy"
-            app:layout_constraintTop_toBottomOf="@id/ivprivacy" />-->
+        <!-- <com.facebook.ads.NativeAdLayout
+             android:id="@+id/native_ad_container"
+             android:layout_width="150dp"
+             android:layout_height="150dp"
+             android:layout_marginTop="40dp"
+             android:background="@drawable/ic_btn_back"
+             android:visibility="visible"
+             app:layout_constraintLeft_toLeftOf="@id/ivprivacy"
+             app:layout_constraintRight_toRightOf="@id/ivprivacy"
+             app:layout_constraintTop_toBottomOf="@id/ivprivacy" />-->
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

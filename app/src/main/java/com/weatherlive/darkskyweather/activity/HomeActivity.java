@@ -28,14 +28,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.airbnb.lottie.LottieAnimationView;
-import com.facebook.ads.Ad;
-import com.facebook.ads.AdError;
-import com.facebook.ads.AdListener;
-import com.facebook.ads.AdSize;
-import com.facebook.ads.AdView;
-import com.facebook.ads.InterstitialAd;
 import com.facebook.ads.NativeAd;
 import com.facebook.ads.NativeAdsManager;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.InterstitialAd;
+import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -91,7 +90,7 @@ import java.util.Locale;
 
 import cz.msebera.android.httpclient.Header;
 
-public class HomeActivity extends AppCompatActivity implements AdListener, ItemClick {
+public class HomeActivity extends AppCompatActivity implements /*AdListener,*/ ItemClick {
 
     private String mLastUpdateTime;
     private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
@@ -122,12 +121,12 @@ public class HomeActivity extends AppCompatActivity implements AdListener, ItemC
     private double default_long = 104.1954;
     private boolean isAllow = false;
     RelativeLayout adContainer;
-    AdView bannerAdView;
-    private InterstitialAd interstitialAd;
+    private AdView gadView;
     private List<NativeAd> mAds = new ArrayList<>();
     private NativeAdsManager mAdsManager;
     int NUM_ADS = 5;
     List<Object> objectArrayList = new ArrayList<>();
+    InterstitialAd interstitial;
 
 
     @Override
@@ -136,16 +135,51 @@ public class HomeActivity extends AppCompatActivity implements AdListener, ItemC
         setContentView(R.layout.activity_home);
 
 
-        adContainer = findViewById(R.id.adContainer);
+        gadView = findViewById(R.id.adview);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        gadView.loadAd(adRequest);
+
+        AdRequest adRequest1 = new AdRequest.Builder().build();
+        interstitial = new InterstitialAd(HomeActivity.this);
+        interstitial.setAdUnitId("ca-app-pub-4293491867572780/4460594732");
+        interstitial.loadAd(adRequest1);
+
+        if (!interstitial.isLoaded()) {
+            interstitial.loadAd(adRequest1);
+        }
+
+        interstitial.setAdListener(new AdListener() {
+            @Override
+            public void onAdClosed() {
+                super.onAdClosed();
+                Intent intent = new Intent(HomeActivity.this, GetLocationActivity.class);
+                startActivityForResult(intent, 11);
+            }
+
+            @Override
+            public void onAdLoaded() {
+                super.onAdLoaded();
+
+            }
+
+            @Override
+            public void onAdFailedToLoad(LoadAdError loadAdError) {
+                super.onAdFailedToLoad(loadAdError);
+                Log.e("LLLL_Error: ", loadAdError.getMessage());
+
+            }
+
+
+        });
 
 
         cd = new InternetConnection(getApplicationContext());
         isInternetPresent = cd.isConnectingToInternet();
         if (isInternetPresent) {
-            adContainer.setVisibility(View.VISIBLE);
-            bannerad();
+            /*adContainer.setVisibility(View.VISIBLE);
+            bannerad();*/
         } else {
-            adContainer.setVisibility(View.GONE);
+            /* adContainer.setVisibility(View.GONE);*/
         }
         init();
         restoreValuesFromBundle(savedInstanceState);
@@ -1159,8 +1193,16 @@ public class HomeActivity extends AppCompatActivity implements AdListener, ItemC
 
     public void OnCLickSearch() {
 
-        Intent intent = new Intent(HomeActivity.this, GetLocationActivity.class);
-        startActivityForResult(intent, 11);
+        if (!interstitial.isLoaded()) {
+
+            Intent intent = new Intent(HomeActivity.this, GetLocationActivity.class);
+            startActivityForResult(intent, 11);
+
+        } else {
+
+            interstitial.show();
+        }
+
 
     }
 
@@ -1282,7 +1324,7 @@ public class HomeActivity extends AppCompatActivity implements AdListener, ItemC
     }
 
 
-    private void bannerad() {
+   /* private void bannerad() {
 
 
         bannerAdView =
@@ -1327,7 +1369,7 @@ public class HomeActivity extends AppCompatActivity implements AdListener, ItemC
         }
 
         super.onDestroy();
-    }
+    }*/
 
 
   /*  private void InterstitialAd() {
@@ -1386,6 +1428,37 @@ public class HomeActivity extends AppCompatActivity implements AdListener, ItemC
                         .withCacheFlags(EnumSet.of(CacheFlag.VIDEO))
                         .build();
         interstitialAd.loadAd(loadAdConfig);
+
+    }*/
+
+
+
+
+   /* public void loadfull() {
+
+        AdRequest adRequest = new AdRequest.Builder().build();
+        InterstitialAd.load(this, "ca-app-pub-3940256099942544/1033173712", adRequest, new InterstitialAdLoadCallback() {
+            @Override
+            public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+                // The mInterstitialAd reference will be null until
+                // an ad is loaded.
+
+                if (minterstitialAd != null) {
+                    minterstitialAd.show(HomeActivity.this);
+                }
+
+            }
+
+            @Override
+            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                // Handle the error
+
+            }
+
+
+
+
+        });
 
     }*/
 

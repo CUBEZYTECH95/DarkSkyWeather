@@ -52,6 +52,8 @@ public class MoreAppsActivity extends AppCompatActivity {
 
         handler = new Handler();
 
+
+
         viewPager = findViewById(R.id.viewPager);
         /*SliderDots = findViewById(R.id.SliderDots);*/
         grid_More_Apps = findViewById(R.id.grid_More_Apps);

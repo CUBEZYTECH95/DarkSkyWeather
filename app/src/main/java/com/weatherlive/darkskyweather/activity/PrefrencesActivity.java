@@ -5,11 +5,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,24 +18,23 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
-import com.facebook.ads.Ad;
-import com.facebook.ads.AdError;
-import com.facebook.ads.AdOptionsView;
 import com.facebook.ads.InterstitialAd;
-import com.facebook.ads.MediaView;
 import com.facebook.ads.NativeAd;
-import com.facebook.ads.NativeAdBase;
 import com.facebook.ads.NativeAdLayout;
-import com.facebook.ads.NativeAdListener;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdLoader;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.formats.NativeAdOptions;
+import com.google.android.gms.ads.formats.UnifiedNativeAd;
+import com.google.android.gms.ads.formats.UnifiedNativeAdView;
+
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.weatherlive.darkskyweather.BuildConfig;
 import com.weatherlive.darkskyweather.R;
 import com.weatherlive.darkskyweather.utils.ImageConstant;
 import com.weatherlive.darkskyweather.utils.InternetConnection;
 import com.weatherlive.darkskyweather.utils.SaveUserInfoUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class PrefrencesActivity extends AppCompatActivity {
 
@@ -50,6 +49,8 @@ public class PrefrencesActivity extends AppCompatActivity {
     NativeAdLayout native_ad_container;
     CardView adView;
     private boolean isLoading;
+    private UnifiedNativeAd glNativeAd;
+    FrameLayout frameLayout;
 
 
     @Override
@@ -57,6 +58,8 @@ public class PrefrencesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_prefrences);
+
+         frameLayout = findViewById(R.id.native_ad_container);
 
         tvad = findViewById(R.id.tvad);
         ivtem = (ImageView) findViewById(R.id.ivtem);
@@ -69,12 +72,13 @@ public class PrefrencesActivity extends AppCompatActivity {
         ivprivacy = findViewById(R.id.ivprivacy);
         ivblank = findViewById(R.id.ivblank);
 
-        native_ad_container = findViewById(R.id.native_ad_container);
+        /*native_ad_container = findViewById(R.id.native_ad_container);*/
         ivshare = findViewById(R.id.ivshare);
 
         init();
 
-        loadNativeAd();
+
+        loadgoogle();
 
 
         if (SaveUserInfoUtils.getFromUserDefaults(getApplicationContext(), ImageConstant.PARAM_VALID_NOTIFICATION_ON_OFF).equals("")) {
@@ -178,6 +182,99 @@ public class PrefrencesActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void loadgoogle() {
+
+        AdLoader.Builder builder = new AdLoader.Builder(this, "ca-app-pub-4293491867572780/3147513062");
+        builder.forUnifiedNativeAd(new UnifiedNativeAd.OnUnifiedNativeAdLoadedListener() {
+            @Override
+            public void onUnifiedNativeAdLoaded(UnifiedNativeAd unifiedNativeAd) {
+                frameLayout.setVisibility(View.VISIBLE);
+                tvad.setVisibility(View.VISIBLE);
+                if (glNativeAd != null) {
+                    glNativeAd.destroy();
+                }
+                glNativeAd = unifiedNativeAd;
+
+                UnifiedNativeAdView adView = (UnifiedNativeAdView) getLayoutInflater().inflate(R.layout.gnt_medium_template_view, null);
+                populateUnifiedNativeAdView(unifiedNativeAd, adView);
+                frameLayout.removeAllViews();
+                frameLayout.addView(adView);
+            }
+        });
+        NativeAdOptions adOptions = new NativeAdOptions.Builder().build();
+        builder.withNativeAdOptions(adOptions);
+        AdLoader adLoader = builder.withAdListener(new AdListener() {
+
+            @Override
+            public void onAdFailedToLoad(LoadAdError loadAdError) {
+                super.onAdFailedToLoad(loadAdError);
+                frameLayout.setVisibility(View.GONE);
+                tvad.setVisibility(View.GONE);
+            }
+
+
+        }).build();
+        adLoader.loadAd(new AdRequest.Builder().build());
+    }
+
+    private void populateUnifiedNativeAdView(UnifiedNativeAd nativeAd, UnifiedNativeAdView adView) {
+        adView.setMediaView(adView.findViewById(R.id.ad_media));
+        adView.setHeadlineView(adView.findViewById(R.id.ad_headline));
+        adView.setBodyView(adView.findViewById(R.id.ad_body));
+        adView.setCallToActionView(adView.findViewById(R.id.ad_call_to_action));
+        adView.setIconView(adView.findViewById(R.id.ad_app_icon));
+        adView.setPriceView(adView.findViewById(R.id.ad_price));
+        adView.setAdvertiserView(adView.findViewById(R.id.ad_advertiser));
+        adView.setStoreView(adView.findViewById(R.id.ad_store));
+        adView.setStarRatingView(adView.findViewById(R.id.ad_stars));
+        ((TextView) adView.getHeadlineView()).setText(nativeAd.getHeadline());
+        adView.getMediaView().setMediaContent(nativeAd.getMediaContent());
+        if (nativeAd.getBody() == null) {
+            adView.getBodyView().setVisibility(View.INVISIBLE);
+        } else {
+            adView.getBodyView().setVisibility(View.VISIBLE);
+            ((TextView) adView.getBodyView()).setText(nativeAd.getBody());
+        }
+        if (nativeAd.getCallToAction() == null) {
+            adView.getCallToActionView().setVisibility(View.INVISIBLE);
+        } else {
+            adView.getCallToActionView().setVisibility(View.VISIBLE);
+            ((Button) adView.getCallToActionView()).setText(nativeAd.getCallToAction());
+        }
+        if (nativeAd.getIcon() == null) {
+            adView.getIconView().setVisibility(View.GONE);
+        } else {
+            ((ImageView) adView.getIconView()).setImageDrawable(nativeAd.getIcon().getDrawable());
+            adView.getIconView().setVisibility(View.VISIBLE);
+        }
+        if (nativeAd.getPrice() == null) {
+            adView.getPriceView().setVisibility(View.INVISIBLE);
+        } else {
+            adView.getPriceView().setVisibility(View.VISIBLE);
+            ((TextView) adView.getPriceView()).setText(nativeAd.getPrice());
+        }
+        if (nativeAd.getStore() == null) {
+            adView.getStoreView().setVisibility(View.INVISIBLE);
+        } else {
+            adView.getStoreView().setVisibility(View.VISIBLE);
+            ((TextView) adView.getStoreView()).setText(nativeAd.getStore());
+        }
+        if (nativeAd.getStarRating() == null) {
+            adView.getStarRatingView().setVisibility(View.INVISIBLE);
+        } else {
+
+            ((RatingBar) adView.getStarRatingView()).setRating(nativeAd.getStarRating().floatValue());
+            adView.getStarRatingView().setVisibility(View.VISIBLE);
+        }
+        if (nativeAd.getAdvertiser() == null) {
+            adView.getAdvertiserView().setVisibility(View.INVISIBLE);
+        } else {
+            ((TextView) adView.getAdvertiserView()).setText(nativeAd.getAdvertiser());
+            adView.getAdvertiserView().setVisibility(View.VISIBLE);
+        }
+        adView.setNativeAd(nativeAd);
     }
 
 
@@ -287,7 +384,7 @@ public class PrefrencesActivity extends AppCompatActivity {
         mFirebaseAnalytics.logEvent("select_image", params);
     }
 
-    private void loadNativeAd() {
+   /* private void loadNativeAd() {
 
 
         nativeAd = new NativeAd(this, "365449667893959_365450307893895");
@@ -380,13 +477,8 @@ public class PrefrencesActivity extends AppCompatActivity {
 
         // Register the Title and CTA button to listen for clicks.
         nativeAd.registerViewForInteraction(adView, nativeAdMedia, nativeAdIcon, clickableViews);
-    }
-
-   /* @Override
-    protected void onDestroy() {
-        if (interstitialAd != null) {
-            interstitialAd.destroy();
-        }
-        super.onDestroy();
     }*/
+
+
 }
+
