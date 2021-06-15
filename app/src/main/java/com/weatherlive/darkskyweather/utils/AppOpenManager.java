@@ -22,7 +22,7 @@ public class AppOpenManager implements Application.ActivityLifecycleCallbacks {
 
     private static boolean isShowingAd = false;
     private static final String LOG_TAG = "AppOpenManager";
-    private static final String AD_UNIT_ID = "ca-app-pub-4293491867572780/4009494595";
+    private static final String AD_UNIT_ID = "";
     private AppOpenAd appOpenAd = null;
 
     private AppOpenAd.AppOpenAdLoadCallback loadCallback;

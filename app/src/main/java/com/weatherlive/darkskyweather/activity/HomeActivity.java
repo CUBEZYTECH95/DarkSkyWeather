@@ -28,13 +28,15 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.airbnb.lottie.LottieAnimationView;
+import com.facebook.ads.Ad;
+import com.facebook.ads.AdError;
+import com.facebook.ads.CacheFlag;
+import com.facebook.ads.InterstitialAd;
+import com.facebook.ads.InterstitialAdListener;
 import com.facebook.ads.NativeAd;
 import com.facebook.ads.NativeAdsManager;
-import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.InterstitialAd;
-import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -85,12 +87,13 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 
 import cz.msebera.android.httpclient.Header;
 
-public class HomeActivity extends AppCompatActivity implements /*AdListener,*/ ItemClick {
+public class HomeActivity extends AppCompatActivity implements /*AdListener,*/ ItemClick, InterstitialAdListener {
 
     private String mLastUpdateTime;
     private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
@@ -126,8 +129,7 @@ public class HomeActivity extends AppCompatActivity implements /*AdListener,*/ I
     private NativeAdsManager mAdsManager;
     int NUM_ADS = 5;
     List<Object> objectArrayList = new ArrayList<>();
-    InterstitialAd interstitial;
-
+    InterstitialAd fbinterstitialAd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,9 +141,28 @@ public class HomeActivity extends AppCompatActivity implements /*AdListener,*/ I
         AdRequest adRequest = new AdRequest.Builder().build();
         gadView.loadAd(adRequest);
 
-        AdRequest adRequest1 = new AdRequest.Builder().build();
+        if (fbinterstitialAd != null) {
+            fbinterstitialAd.destroy();
+            fbinterstitialAd = null;
+        }
+
+        fbinterstitialAd =
+                new InterstitialAd(this, "365449667893959_365451851227074");
+
+        // Load a new interstitial.
+        InterstitialAd.InterstitialLoadAdConfig loadAdConfig =
+                fbinterstitialAd
+                        .buildLoadAdConfig()
+                        // Set a listener to get notified on changes
+                        // or when the user interact with the ad.
+                        .withAdListener(this)
+                        .withCacheFlags(EnumSet.of(CacheFlag.VIDEO))
+                        .build();
+        fbinterstitialAd.loadAd(loadAdConfig);
+
+       /* AdRequest adRequest1 = new AdRequest.Builder().build();
         interstitial = new InterstitialAd(HomeActivity.this);
-        interstitial.setAdUnitId("ca-app-pub-4293491867572780/4460594732");
+        interstitial.setAdUnitId("ca-app-pub-3940256099942544/1033173712");
         interstitial.loadAd(adRequest1);
 
         if (!interstitial.isLoaded()) {
@@ -170,7 +191,7 @@ public class HomeActivity extends AppCompatActivity implements /*AdListener,*/ I
             }
 
 
-        });
+        });*/
 
 
         cd = new InternetConnection(getApplicationContext());
@@ -493,6 +514,40 @@ public class HomeActivity extends AppCompatActivity implements /*AdListener,*/ I
     public void click(int pos) {
 
         onSettingClick();
+
+    }
+
+    @Override
+    public void onInterstitialDisplayed(Ad ad) {
+
+    }
+
+    @Override
+    public void onInterstitialDismissed(Ad ad) {
+
+        fbinterstitialAd.loadAd();
+        Intent intent = new Intent(HomeActivity.this, GetLocationActivity.class);
+        startActivityForResult(intent, 11);
+
+    }
+
+    @Override
+    public void onError(Ad ad, AdError adError) {
+
+    }
+
+    @Override
+    public void onAdLoaded(Ad ad) {
+
+    }
+
+    @Override
+    public void onAdClicked(Ad ad) {
+
+    }
+
+    @Override
+    public void onLoggingImpression(Ad ad) {
 
     }
 
@@ -1193,15 +1248,33 @@ public class HomeActivity extends AppCompatActivity implements /*AdListener,*/ I
 
     public void OnCLickSearch() {
 
-        if (!interstitial.isLoaded()) {
+
+        if (fbinterstitialAd == null || !fbinterstitialAd.isAdLoaded()) {
 
             Intent intent = new Intent(HomeActivity.this, GetLocationActivity.class);
             startActivityForResult(intent, 11);
 
+            return;
+        }
+
+        if (fbinterstitialAd.isAdInvalidated()) {
+            fbinterstitialAd.loadAd();
+            Intent intent = new Intent(HomeActivity.this, GetLocationActivity.class);
+            startActivityForResult(intent, 11);
+            return;
+        }
+        fbinterstitialAd.show();
+
+
+
+       /* if (!interstitial.isLoaded()) {
+
+
+
         } else {
 
             interstitial.show();
-        }
+        }*/
 
 
     }
@@ -1321,6 +1394,16 @@ public class HomeActivity extends AppCompatActivity implements /*AdListener,*/ I
         super.onBackPressed();
         setResult(RESULT_OK);
         finish();
+    }
+
+
+    @Override
+    public void onDestroy() {
+        if (fbinterstitialAd != null) {
+            fbinterstitialAd.destroy();
+            fbinterstitialAd = null;
+        }
+        super.onDestroy();
     }
 
 

@@ -5,10 +5,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,9 +20,15 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
+import com.facebook.ads.Ad;
+import com.facebook.ads.AdError;
+import com.facebook.ads.AdOptionsView;
 import com.facebook.ads.InterstitialAd;
+import com.facebook.ads.MediaView;
 import com.facebook.ads.NativeAd;
+import com.facebook.ads.NativeAdBase;
 import com.facebook.ads.NativeAdLayout;
+import com.facebook.ads.NativeAdListener;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdLoader;
 import com.google.android.gms.ads.AdRequest;
@@ -35,6 +43,9 @@ import com.weatherlive.darkskyweather.R;
 import com.weatherlive.darkskyweather.utils.ImageConstant;
 import com.weatherlive.darkskyweather.utils.InternetConnection;
 import com.weatherlive.darkskyweather.utils.SaveUserInfoUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PrefrencesActivity extends AppCompatActivity {
 
@@ -59,7 +70,8 @@ public class PrefrencesActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_prefrences);
 
-         frameLayout = findViewById(R.id.native_ad_container);
+         /*frameLayout = findViewById(R.id.native_ad_container);*/
+        native_ad_container = findViewById(R.id.native_ad_container);
 
         tvad = findViewById(R.id.tvad);
         ivtem = (ImageView) findViewById(R.id.ivtem);
@@ -78,7 +90,9 @@ public class PrefrencesActivity extends AppCompatActivity {
         init();
 
 
-        loadgoogle();
+        /*loadgoogle();*/
+
+        loadNativeAd();
 
 
         if (SaveUserInfoUtils.getFromUserDefaults(getApplicationContext(), ImageConstant.PARAM_VALID_NOTIFICATION_ON_OFF).equals("")) {
@@ -186,7 +200,7 @@ public class PrefrencesActivity extends AppCompatActivity {
 
     private void loadgoogle() {
 
-        AdLoader.Builder builder = new AdLoader.Builder(this, "ca-app-pub-4293491867572780/3147513062");
+        AdLoader.Builder builder = new AdLoader.Builder(this, "ca-app-pub-3940256099942544/2247696110");
         builder.forUnifiedNativeAd(new UnifiedNativeAd.OnUnifiedNativeAdLoadedListener() {
             @Override
             public void onUnifiedNativeAdLoaded(UnifiedNativeAd unifiedNativeAd) {
@@ -384,7 +398,7 @@ public class PrefrencesActivity extends AppCompatActivity {
         mFirebaseAnalytics.logEvent("select_image", params);
     }
 
-   /* private void loadNativeAd() {
+    private void loadNativeAd() {
 
 
         nativeAd = new NativeAd(this, "365449667893959_365450307893895");
@@ -477,7 +491,7 @@ public class PrefrencesActivity extends AppCompatActivity {
 
         // Register the Title and CTA button to listen for clicks.
         nativeAd.registerViewForInteraction(adView, nativeAdMedia, nativeAdIcon, clickableViews);
-    }*/
+    }
 
 
 }

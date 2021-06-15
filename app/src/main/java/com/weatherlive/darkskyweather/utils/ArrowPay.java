@@ -41,14 +41,14 @@ public class ArrowPay extends Application {
                 });
 
 
-       /* List<String> testDeviceIds = Collections.singletonList("b1558c4a-f475-48f3-9bc1-646391224a37");
+        /*List<String> testDeviceIds = Collections.singletonList("b1558c4a-f475-48f3-9bc1-646391224a37");
         RequestConfiguration configuration =
                 new RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build();
         MobileAds.setRequestConfiguration(configuration);*/
 
 
 
-        appOpenManager = new AppOpenManager(this);
+        /*appOpenManager = new AppOpenManager(this);*/
 
         AudienceNetworkInitializeHelper.initialize(this);
 

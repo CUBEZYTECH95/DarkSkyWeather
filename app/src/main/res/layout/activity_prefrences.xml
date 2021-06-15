@@ -295,7 +295,20 @@
             app:layout_constraintTop_toBottomOf="@id/ivabouts" />
 
 
-        <FrameLayout
+
+        <com.facebook.ads.NativeAdLayout
+            android:id="@+id/native_ad_container"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_marginTop="40dp"
+            android:background="@drawable/ic_btn_back"
+            android:visibility="gone"
+            app:layout_constraintLeft_toLeftOf="@id/ivrate"
+            app:layout_constraintRight_toRightOf="@id/ivrate"
+            app:layout_constraintTop_toBottomOf="@id/tvpre" />
+
+
+      <!--  <FrameLayout
             android:id="@+id/native_ad_container"
             android:layout_width="150dp"
             android:layout_height="150dp"
@@ -305,7 +318,7 @@
             app:layout_constraintLeft_toLeftOf="@id/ivrate"
             app:layout_constraintRight_toRightOf="@id/ivrate"
             app:layout_constraintTop_toBottomOf="@id/tvpre" />
-
+-->
 
         <TextView
             android:id="@+id/tvad"

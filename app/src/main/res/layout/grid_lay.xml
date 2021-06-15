@@ -67,6 +67,7 @@
                     android:src="@mipmap/sdownload" />
 
             </LinearLayout>
+
         </LinearLayout>
 
         <ImageView
@@ -77,4 +78,5 @@
             android:contentDescription="@string/todo" />
 
     </FrameLayout>
+
 </LinearLayout>
