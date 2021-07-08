@@ -12,8 +12,9 @@ android {
         applicationId "com.weatherlive.darkskyweather"
         minSdkVersion 19
         targetSdkVersion 30
-        versionCode 9
-        versionName "1.8"
+        versionCode 11
+        versionName "1.10"
+        setProperty("archivesBaseName", "Accurate Weather" + "-v" + versionCode + "(" + versionName + ")")
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -42,6 +43,14 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    lintOptions {
+        checkReleaseBuilds false
+        // Or, if you prefer, you can continue to check for errors in release builds,
+        // but continue the build even when errors are found:
+        abortOnError false
+    }
+
 }
 
 dependencies {
