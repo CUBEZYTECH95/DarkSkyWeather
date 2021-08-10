@@ -23,6 +23,7 @@ import androidx.cardview.widget.CardView;
 import com.facebook.ads.Ad;
 import com.facebook.ads.AdError;
 import com.facebook.ads.AdOptionsView;
+import com.facebook.ads.BuildConfig;
 import com.facebook.ads.InterstitialAd;
 import com.facebook.ads.MediaView;
 import com.facebook.ads.NativeAd;
@@ -36,9 +37,7 @@ import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.formats.NativeAdOptions;
 import com.google.android.gms.ads.formats.UnifiedNativeAd;
 import com.google.android.gms.ads.formats.UnifiedNativeAdView;
-
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.weatherlive.darkskyweather.BuildConfig;
 import com.weatherlive.darkskyweather.R;
 import com.weatherlive.darkskyweather.utils.ImageConstant;
 import com.weatherlive.darkskyweather.utils.InternetConnection;
@@ -70,7 +69,7 @@ public class PrefrencesActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_prefrences);
 
-         /*frameLayout = findViewById(R.id.native_ad_container);*/
+        /*frameLayout = findViewById(R.id.native_ad_container);*/
         native_ad_container = findViewById(R.id.native_ad_container);
 
         tvad = findViewById(R.id.tvad);

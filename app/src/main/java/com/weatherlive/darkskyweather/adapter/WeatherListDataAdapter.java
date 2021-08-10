@@ -74,7 +74,6 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     Weather15Data weather15Days;
 
 
-
     public WeatherListDataAdapter(Activity context, ArrayList<NextModel> data, List<Object> objectArrayList, ArrayList<OneHourModel> chartDatas, String WeatherText, String date, String Temp, String Unit, String humidity,
                                   String cloudCover, String minmax, String pressure, String dewPoint, String wind, String WeatherIcon, String address, ItemClick itemClick) {
 
@@ -174,7 +173,6 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         searchViewHolder.rv_15days.setAdapter(weather15Days);
 
         loadNativeAd(searchViewHolder);
-
 
 
     }
