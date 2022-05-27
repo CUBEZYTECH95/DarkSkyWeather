@@ -10,9 +10,9 @@
     {
       "type": "SINGLE",
       "filters": [],
-      "versionCode": 2,
-      "versionName": "1.1",
-      "outputFile": "app-release.apk"
+      "versionCode": 15,
+      "versionName": "1.14",
+      "outputFile": "Accurate Weather-v15(1.14)-release.apk"
     }
   ]
 }

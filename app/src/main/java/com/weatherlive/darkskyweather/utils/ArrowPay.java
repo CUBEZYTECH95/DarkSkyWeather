@@ -5,8 +5,8 @@ import android.app.Application;
 import android.content.Context;
 import android.os.StrictMode;
 
+
 import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.RequestConfiguration;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.onesignal.OneSignal;
@@ -32,6 +32,14 @@ public class ArrowPay extends Application {
     public void onCreate() {
         super.onCreate();
 
+
+        /*List<String> testDeviceIds = Collections.singletonList("b1558c4a-f475-48f3-9bc1-646391224a37");
+        RequestConfiguration configuration =
+                new RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build();
+        MobileAds.setRequestConfiguration(configuration);*/
+
+        /*appOpenManager = new AppOpenManager(this);*/
+
         MobileAds.initialize(
                 this,
                 new OnInitializationCompleteListener() {
@@ -40,15 +48,8 @@ public class ArrowPay extends Application {
                     }
                 });
 
+        appOpenManager = new AppOpenManager(this);
 
-        /*List<String> testDeviceIds = Collections.singletonList("b1558c4a-f475-48f3-9bc1-646391224a37");
-        RequestConfiguration configuration =
-                new RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build();
-        MobileAds.setRequestConfiguration(configuration);*/
-
-
-
-        /*appOpenManager = new AppOpenManager(this);*/
 
         AudienceNetworkInitializeHelper.initialize(this);
 

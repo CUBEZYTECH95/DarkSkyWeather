@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 
 public class SuggestionAdapter extends ArrayAdapter<SearchModel> implements Filterable {
+
+
     private ArrayList<SearchModel> mlistData, tempItems, suggestions;
     Context context;
 

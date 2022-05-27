@@ -9,7 +9,7 @@
     android:padding="8dp"
     android:textAppearance="?android:attr/textAppearanceListItemSmall"
     android:textColor="@color/black"
-    android:textSize="15dp" />
+    android:textSize="@dimen/sp_15" />
 
 
     <!--</LinearLayout>-->

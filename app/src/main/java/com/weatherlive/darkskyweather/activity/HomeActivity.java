@@ -3,6 +3,7 @@ package com.weatherlive.darkskyweather.activity;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
@@ -13,12 +14,14 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,15 +31,22 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.airbnb.lottie.LottieAnimationView;
-import com.facebook.ads.Ad;
-import com.facebook.ads.AdError;
-import com.facebook.ads.CacheFlag;
 import com.facebook.ads.InterstitialAd;
-import com.facebook.ads.InterstitialAdListener;
 import com.facebook.ads.NativeAd;
 import com.facebook.ads.NativeAdsManager;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.AdError;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.RequestConfiguration;
+import com.google.android.gms.ads.admanager.AdManagerAdRequest;
+import com.google.android.gms.ads.admanager.AdManagerAdView;
+import com.google.android.gms.ads.admanager.AdManagerInterstitialAd;
+import com.google.android.gms.ads.admanager.AdManagerInterstitialAdLoadCallback;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -73,6 +83,7 @@ import com.weatherlive.darkskyweather.utils.ImageConstant;
 import com.weatherlive.darkskyweather.utils.InternetConnection;
 import com.weatherlive.darkskyweather.utils.NetworkUtility;
 import com.weatherlive.darkskyweather.utils.SaveUserInfoUtils;
+import com.weatherlive.darkskyweather.utils.SharedPrefs;
 import com.weatherlive.darkskyweather.utils.SharedUtils;
 import com.weatherlive.darkskyweather.utils.SpeedyLinearLayoutManager;
 
@@ -86,14 +97,14 @@ import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 
 import cz.msebera.android.httpclient.Header;
 
-public class HomeActivity extends AppCompatActivity implements /*AdListener,*/ ItemClick, InterstitialAdListener {
+public class HomeActivity extends AppCompatActivity implements /*AdListener,*/ ItemClick {
 
     private String mLastUpdateTime;
     private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
@@ -124,30 +135,60 @@ public class HomeActivity extends AppCompatActivity implements /*AdListener,*/ I
     private double default_long = 104.1954;
     private boolean isAllow = false;
     RelativeLayout adContainer;
-    private AdView gadView;
     private List<NativeAd> mAds = new ArrayList<>();
     private NativeAdsManager mAdsManager;
     int NUM_ADS = 5;
     List<Object> objectArrayList = new ArrayList<>();
     InterstitialAd fbinterstitialAd;
+    /*public com.google.android.gms.ads.interstitial.InterstitialAd interstitialAd;*/
+    final Handler handler = new Handler(Looper.getMainLooper());
+    private ProgressDialog progress;
+    Date mdate15 = new Date();
+    private AdManagerAdView adView;
+    private AdManagerInterstitialAd interstitialAd;
+    RelativeLayout rlContainer2;
 
+    @SuppressLint("MissingPermission")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        /*adView = findViewById(R.id.ad_view);*/
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        rlContainer2 = findViewById(R.id.adContainer);
 
-        gadView = findViewById(R.id.adview);
+        MobileAds.initialize(
+                this,
+                new OnInitializationCompleteListener() {
+                    @Override
+                    public void onInitializationComplete(@NonNull InitializationStatus initializationStatus) {
+                    }
+                });
+
+        List<String> testDeviceIds = Collections.singletonList("965e1f03-2e7f-4a50-4660-282729f004e9");
+        RequestConfiguration configuration =
+                new RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build();
+        MobileAds.setRequestConfiguration(configuration);
+
+        googlebanner();
+
+        /*AdManagerAdRequest adRequest = new AdManagerAdRequest.Builder().build();
+        adView.loadAd(adRequest);*/
+
+
+      /*  gadView = findViewById(R.id.adview);
         AdRequest adRequest = new AdRequest.Builder().build();
-        gadView.loadAd(adRequest);
+        gadView.loadAd(adRequest);*/
 
-        if (fbinterstitialAd != null) {
+       /* if (fbinterstitialAd != null) {
             fbinterstitialAd.destroy();
             fbinterstitialAd = null;
         }
 
         fbinterstitialAd =
-                new InterstitialAd(this, "365449667893959_365451851227074");
+                new InterstitialAd(this, getString(R.string.fb_int));
 
         // Load a new interstitial.
         InterstitialAd.InterstitialLoadAdConfig loadAdConfig =
@@ -158,9 +199,14 @@ public class HomeActivity extends AppCompatActivity implements /*AdListener,*/ I
                         .withAdListener(this)
                         .withCacheFlags(EnumSet.of(CacheFlag.VIDEO))
                         .build();
-        fbinterstitialAd.loadAd(loadAdConfig);
+        fbinterstitialAd.loadAd(loadAdConfig);*/
 
-       /* AdRequest adRequest1 = new AdRequest.Builder().build();
+        progress = new ProgressDialog(this);
+        progress.setMessage("Loading....");
+
+        loadAd();
+
+        /*AdRequest adRequest1 = new AdRequest.Builder().build();
         interstitial = new InterstitialAd(HomeActivity.this);
         interstitial.setAdUnitId("ca-app-pub-3940256099942544/1033173712");
         interstitial.loadAd(adRequest1);
@@ -206,9 +252,182 @@ public class HomeActivity extends AppCompatActivity implements /*AdListener,*/ I
         restoreValuesFromBundle(savedInstanceState);
     }
 
-    private void init() {
+    @SuppressLint("MissingPermission")
+    private void googlebanner() {
+
+        AdManagerAdRequest adRequest = new AdManagerAdRequest.Builder().build();
+        AdManagerAdView adView = new AdManagerAdView(this);
+        adView.setAdSizes(AdSize.BANNER);
+        adView.setAdUnitId(getString(R.string.ad_unit_id_banner));
+        adView.loadAd(adRequest);
+        adView.setAdListener(new AdListener() {
+            @Override
+            public void onAdLoaded() {
+                // Code to be executed when an ad finishes loading.
+                Log.e("TAG", "onAdLoaded: ");
+            }
+
+            @Override
+            public void onAdFailedToLoad(@NonNull LoadAdError adError) {
+                // Code to be executed when an ad request fails.
+                Toast.makeText(HomeActivity.this, "" + adError.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onAdOpened() {
+                // Code to be executed when an ad opens an overlay that
+                // covers the screen.
+            }
+
+            @Override
+            public void onAdClicked() {
+                // Code to be executed when the user clicks on an ad.
+            }
+
+            @Override
+            public void onAdClosed() {
+                // Code to be executed when the user is about to return
+                // to the app after tapping on an ad.
+            }
+        });
+
+        RelativeLayout.LayoutParams bannerParameters = new RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        bannerParameters.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+
+        rlContainer2.addView(adView, bannerParameters);
+    }
+
+    public void loadAd() {
+
+        AdManagerAdRequest adRequest = new AdManagerAdRequest.Builder().build();
+        AdManagerInterstitialAd.load(
+                this,
+                getString(R.string.ad_unit_int),
+                adRequest,
+                new AdManagerInterstitialAdLoadCallback() {
+                    @Override
+                    public void onAdLoaded(@NonNull AdManagerInterstitialAd interstitialAd) {
+                        // The mInterstitialAd reference will be null until
+                        // an ad is loaded.
+                        HomeActivity.this.interstitialAd = interstitialAd;
+
+                        interstitialAd.setFullScreenContentCallback(
+                                new FullScreenContentCallback() {
+                                    @Override
+                                    public void onAdDismissedFullScreenContent() {
+
+                                        HomeActivity.this.interstitialAd = null;
+                                        handler.postDelayed(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                //Do something after 5000ms
+                                                /* progress.dismiss();*/
+                                                pd.setVisibility(View.GONE);
+                                            }
+                                        }, 2000);
+                                        finish();
+
+                                    }
+
+                                    @Override
+                                    public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
+                                        HomeActivity.this.interstitialAd = null;
+                                    }
+
+                                    @Override
+                                    public void onAdShowedFullScreenContent() {
+
+                                    }
+                                });
+                    }
+
+                    @Override
+                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                        // Handle the error
+                        interstitialAd = null;
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                //Do something after 5000ms
+                                pd.setVisibility(View.GONE);
+                            }
+                        }, 2000);
+
+                    }
+                });
+
+       /* com.google.android.gms.ads.interstitial.InterstitialAd.load(
+                this,
+                getString(R.string.google_int),
+                adRequest,
+                new InterstitialAdLoadCallback() {
+                    @Override
+                    public void onAdLoaded(@NonNull com.google.android.gms.ads.interstitial.InterstitialAd interstitialAd) {
+                        // The mInterstitialAd reference will be null until
+                        // an ad is loaded.
+                        HomeActivity.this.interstitialAd = interstitialAd;
+                        interstitialAd.setFullScreenContentCallback(
+                                new FullScreenContentCallback() {
+                                    @Override
+                                    public void onAdDismissedFullScreenContent() {
+
+                                        HomeActivity.this.interstitialAd = null;
+                                        handler.postDelayed(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                //Do something after 5000ms
+                                                progress.dismiss();
+                                            }
+                                        }, 2000);
+                                        finish();
+                                    }
+
+                                    @Override
+                                    public void onAdFailedToShowFullScreenContent(@NonNull com.google.android.gms.ads.AdError adError) {
+                                        // Called when fullscreen content failed to show.
+                                        // Make sure to set your reference to null so you don't
+                                        // show it a second time.
+                                        Log.e("onAdFailedToShow", "onAdFailedToLoad: " + adError.getDomain());
+                                        Log.e("onAdFailedToShowget", "onAdFailedToLoad: " + adError.getCode());
+                                        HomeActivity.this.interstitialAd = null;
+                                    }
+
+                                    @Override
+                                    public void onAdShowedFullScreenContent() {
+                                        // Called when fullscreen content is shown.
+
+                                    }
+                                });
+                    }
+
+                    @Override
+                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+
+                        // Handle the error
+                        Log.e("getMessage", "onAdFailedToLoad: " + loadAdError.getDomain());
+                        Log.e("getCode", "onAdFailedToLoad: " + loadAdError.getCode());
+
+                        interstitialAd = null;
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                //Do something after 5000ms
+                                progress.dismiss();
+                            }
+                        }, 2000);
+
+                    }
+
+                });*/
+
+    }
+
+
+    public void init() {
+
         apponcreate = true;
-        pd = (LottieAnimationView) findViewById(R.id.progressBar);
+        pd = findViewById(R.id.progressBar);
         pd.enableMergePathsForKitKatAndAbove(true);
         pd.playAnimation();
         pd.cancelAnimation();
@@ -419,6 +638,7 @@ public class HomeActivity extends AppCompatActivity implements /*AdListener,*/ I
                             pd.setVisibility(View.GONE);
                         }
                     } else {
+
                         if (SaveUserInfoUtils.getFromUserDefaults(getApplicationContext(), ImageConstant.PARAM_VALID_LATITUDE).equals("") &&
                                 SaveUserInfoUtils.getFromUserDefaults(getApplicationContext(), ImageConstant.PARAM_VALID_LONGITUDE).equals("")) {
 
@@ -430,8 +650,8 @@ public class HomeActivity extends AppCompatActivity implements /*AdListener,*/ I
 
                             String lat = SaveUserInfoUtils.getFromUserDefaults(getApplicationContext(), ImageConstant.PARAM_VALID_LATITUDE);
                             String lon = SaveUserInfoUtils.getFromUserDefaults(getApplicationContext(), ImageConstant.PARAM_VALID_LONGITUDE);
-                            Log.e("latlong", "updateLocationUI: " + lat);
-                            Log.e("latlong", "updateLocationUI: " + lon);
+                            /*Log.e("latlong", "updateLocationUI: " + lat);
+                            Log.e("latlong", "updateLocationUI: " + lon);*/
 
                             /*startPoint.setLatitude(Double.parseDouble(SaveUserInfoUtils.getFromUserDefaults(getApplicationContext(), ImageConstant.PARAM_VALID_LATITUDE)));
                             startPoint.setLongitude(Double.parseDouble(SaveUserInfoUtils.getFromUserDefaults(getApplicationContext(), ImageConstant.PARAM_VALID_LONGITUDE)));*/
@@ -517,39 +737,6 @@ public class HomeActivity extends AppCompatActivity implements /*AdListener,*/ I
 
     }
 
-    @Override
-    public void onInterstitialDisplayed(Ad ad) {
-
-    }
-
-    @Override
-    public void onInterstitialDismissed(Ad ad) {
-
-        fbinterstitialAd.loadAd();
-        Intent intent = new Intent(HomeActivity.this, GetLocationActivity.class);
-        startActivityForResult(intent, 11);
-
-    }
-
-    @Override
-    public void onError(Ad ad, AdError adError) {
-
-    }
-
-    @Override
-    public void onAdLoaded(Ad ad) {
-
-    }
-
-    @Override
-    public void onAdClicked(Ad ad) {
-
-    }
-
-    @Override
-    public void onLoggingImpression(Ad ad) {
-
-    }
 
     @SuppressLint("StaticFieldLeak")
     private class GetKey extends AsyncTask<String, Integer, String> {
@@ -810,6 +997,7 @@ public class HomeActivity extends AppCompatActivity implements /*AdListener,*/ I
     ArrayList<OneHourModel> ChartDatas;
 
     public void getNext24HourData() {
+
         RequestParams params = new RequestParams();
         AsyncHttpClient client = new AsyncHttpClient();
         client.setTimeout(60 * 1000);
@@ -845,6 +1033,7 @@ public class HomeActivity extends AppCompatActivity implements /*AdListener,*/ I
             try {
                 if (response.length() > 0) {
                     JSONArray jsonArray = new JSONArray(response);
+
                     if (jsonArray.length() > 0 && jsonArray != null) {
                         for (int i = 0; i < jsonArray.length(); i++) {
                             JSONObject jsonObject = jsonArray.getJSONObject(i);
@@ -1021,7 +1210,9 @@ public class HomeActivity extends AppCompatActivity implements /*AdListener,*/ I
                                         (System.currentTimeMillis() < dtsunset.getMillis())) {
 
                                     day = 0;
+
                                 } else {
+
                                     day = 1;
                                 }
                             }
@@ -1076,12 +1267,12 @@ public class HomeActivity extends AppCompatActivity implements /*AdListener,*/ I
                         }
 
 
-                        NextModel nextModel = new NextModel();
-                        nextModelArrayList.add(0, nextModel);
+                       /* NextModel nextModel = new NextModel();
+                        nextModelArrayList.add(0, nextModel);*/
 
                         /*LinearLayoutManager linearLayoutManager = new LinearLayoutManager(HomeActivity.this, LinearLayoutManager.VERTICAL, false);*/
                         listData.setLayoutManager(new SpeedyLinearLayoutManager(HomeActivity.this, SpeedyLinearLayoutManager.VERTICAL, false));
-                        nextDayDataListAdapter = new WeatherListDataAdapter(HomeActivity.this, nextModelArrayList, objectArrayList, ChartDatas, WeatherText, date, Temp,
+                        nextDayDataListAdapter = new WeatherListDataAdapter(HomeActivity.this, nextModelArrayList,nextModelArrayList, ChartDatas, WeatherText, date, Temp,
                                 Unit, humidity, cloudCover, minmax, pressure, dewPoint, wind, WeatherIcon, address, HomeActivity.this);
                         listData.setAdapter(nextDayDataListAdapter);
                         listData.setHasFixedSize(true);
@@ -1144,6 +1335,7 @@ public class HomeActivity extends AppCompatActivity implements /*AdListener,*/ I
     }
 
     private void startLocationUpdates() {
+
         mSettingsClient
                 .checkLocationSettings(mLocationSettingsRequest)
                 .addOnSuccessListener(this, new OnSuccessListener<LocationSettingsResponse>() {
@@ -1248,8 +1440,91 @@ public class HomeActivity extends AppCompatActivity implements /*AdListener,*/ I
 
     public void OnCLickSearch() {
 
+//        if (SharedPrefs.isAdFirstTime(SharedPrefs.userSharedPrefData.user_id)) {
 
-        if (fbinterstitialAd == null || !fbinterstitialAd.isAdLoaded()) {
+//            if (SharedPrefs.getAdsTime(SharedPrefs.userSharedPrefData.wifi) <= mdate15.getTime()) {
+
+        pd.setVisibility(View.VISIBLE);
+
+        AdManagerAdRequest adRequest = new AdManagerAdRequest.Builder().build();
+        AdManagerInterstitialAd.load(
+                this,
+                getString(R.string.ad_unit_int),
+                adRequest,
+                new AdManagerInterstitialAdLoadCallback() {
+                    @Override
+                    public void onAdLoaded(@NonNull AdManagerInterstitialAd interstitialAd) {
+                        // The mInterstitialAd reference will be null until
+                        // an ad is loaded.
+                        pd.setVisibility(View.GONE);
+
+                        interstitialAd.show(HomeActivity.this);
+
+                        interstitialAd.setFullScreenContentCallback(
+                                new FullScreenContentCallback() {
+                                    @Override
+                                    public void onAdDismissedFullScreenContent() {
+                                        // Called when fullscreen content is dismissed.
+                                        // Make sure to set your reference to null so you don't
+                                        // show it a second time.
+
+                                        Intent intent = new Intent(HomeActivity.this, GetLocationActivity.class);
+                                        startActivityForResult(intent, 11);
+
+                                    }
+
+                                    @Override
+                                    public void onAdFailedToShowFullScreenContent(AdError adError) {
+                                        // Called when fullscreen content failed to show.
+
+                                        // Make sure to set your reference to null so you don't
+                                        // show it a second time.
+                                        Intent intent = new Intent(HomeActivity.this, GetLocationActivity.class);
+                                        startActivityForResult(intent, 11);
+
+                                    }
+
+                                    @Override
+                                    public void onAdShowedFullScreenContent() {
+                                        // Called when fullscreen content is shown.
+                                        pd.setVisibility(View.GONE);
+
+                                        Date date1 = new Date();
+                                        SharedPrefs.saveAdsTime(SharedPrefs.userSharedPrefData.wifi, date1.getTime() + (15601000));
+
+
+                                    }
+
+                                });
+
+
+                    }
+
+                    @Override
+                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                        // Handle the error
+                        pd.setVisibility(View.GONE);
+
+                        Intent intent = new Intent(HomeActivity.this, GetLocationActivity.class);
+                        startActivityForResult(intent, 11);
+
+                    }
+                });
+
+           /* } else {
+
+                Intent intent = new Intent(HomeActivity.this, GetLocationActivity.class);
+                startActivityForResult(intent, 11);
+            }*/
+/*
+        } else {
+
+            SharedPrefs.setAdFirstTime(SharedPrefs.userSharedPrefData.user_id, true);
+            Intent intent = new Intent(HomeActivity.this, GetLocationActivity.class);
+            startActivityForResult(intent, 11);
+        }*/
+
+       /* if (fbinterstitialAd == null || !fbinterstitialAd.isAdLoaded()) {
 
             Intent intent = new Intent(HomeActivity.this, GetLocationActivity.class);
             startActivityForResult(intent, 11);
@@ -1263,7 +1538,7 @@ public class HomeActivity extends AppCompatActivity implements /*AdListener,*/ I
             startActivityForResult(intent, 11);
             return;
         }
-        fbinterstitialAd.show();
+        fbinterstitialAd.show();*/
 
 
 
@@ -1280,6 +1555,53 @@ public class HomeActivity extends AppCompatActivity implements /*AdListener,*/ I
     }
 
     public void getCurrentLocation() {
+        Date date = new Date();
+        if (SharedPrefs.getAdsTime(SharedPrefs.userSharedPrefData.location_ads_time) <= date.getTime()) {
+
+            AdManagerAdRequest adRequest = new AdManagerAdRequest.Builder().build();
+            AdManagerInterstitialAd.load(
+                    this,
+                    getString(R.string.ad_unit_int),
+                    adRequest,
+                    new AdManagerInterstitialAdLoadCallback() {
+                        @Override
+                        public void onAdLoaded(@NonNull AdManagerInterstitialAd interstitialAd) {
+                            // The mInterstitialAd reference will be null until
+                            // an ad is loaded.
+
+                            interstitialAd.show(HomeActivity.this);
+
+                            interstitialAd.setFullScreenContentCallback(
+                                    new FullScreenContentCallback() {
+                                        @Override
+                                        public void onAdDismissedFullScreenContent() {
+                                            // Called when fullscreen content is dismissed.
+                                            // Make sure to set your reference to null so you don't
+                                            // show it a second time.
+
+                                        }
+
+                                        @Override
+                                        public void onAdFailedToShowFullScreenContent(AdError adError) {
+                                            // Called when fullscreen content failed to show.
+
+                                            // Make sure to set your reference to null so you don't
+                                            // show it a second time.
+
+                                        }
+
+                                        @Override
+                                        public void onAdShowedFullScreenContent() {
+                                            // Called when fullscreen content is shown.
+                                            Date date1 = new Date();
+                                            SharedPrefs.saveAdsTime(SharedPrefs.userSharedPrefData.location_ads_time, date1.getTime() + (720 * 60 * 1000));
+
+                                        }
+
+                                    });
+                        }
+                    });
+        }
 
         if (mCurrentLocation != null) {
             SaveUserInfoUtils.saveToUserDefaults(getApplicationContext(), ImageConstant.PARAM_VALID_LATITUDE, "" + mCurrentLocation.getLatitude());
@@ -1391,18 +1713,40 @@ public class HomeActivity extends AppCompatActivity implements /*AdListener,*/ I
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        setResult(RESULT_OK);
-        finish();
-    }
 
+        setResult(RESULT_OK);
+        pd.setVisibility(View.VISIBLE);
+
+        if (interstitialAd != null) {
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    //Do something after 5000ms
+                    interstitialAd.show(HomeActivity.this);
+                }
+            }, 2000);
+
+        } else {
+
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    //Do something after 5000ms
+                    finish();
+                }
+            }, 2000);
+
+
+        }
+
+    }
 
     @Override
     public void onDestroy() {
-        if (fbinterstitialAd != null) {
+       /* if (fbinterstitialAd != null) {
             fbinterstitialAd.destroy();
             fbinterstitialAd = null;
-        }
+        }*/
         super.onDestroy();
     }
 
@@ -1513,7 +1857,6 @@ public class HomeActivity extends AppCompatActivity implements /*AdListener,*/ I
         interstitialAd.loadAd(loadAdConfig);
 
     }*/
-
 
 
 

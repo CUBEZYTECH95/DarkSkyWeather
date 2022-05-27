@@ -1,17 +1,14 @@
 package com.weatherlive.darkskyweather.activity;
 
+import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,31 +17,17 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
-import com.facebook.ads.Ad;
-import com.facebook.ads.AdError;
-import com.facebook.ads.AdOptionsView;
 import com.facebook.ads.BuildConfig;
 import com.facebook.ads.InterstitialAd;
-import com.facebook.ads.MediaView;
 import com.facebook.ads.NativeAd;
-import com.facebook.ads.NativeAdBase;
 import com.facebook.ads.NativeAdLayout;
-import com.facebook.ads.NativeAdListener;
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdLoader;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.LoadAdError;
-import com.google.android.gms.ads.formats.NativeAdOptions;
-import com.google.android.gms.ads.formats.UnifiedNativeAd;
-import com.google.android.gms.ads.formats.UnifiedNativeAdView;
+import com.google.android.gms.ads.admanager.AdManagerAdRequest;
+import com.google.android.gms.ads.admanager.AdManagerAdView;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.weatherlive.darkskyweather.R;
 import com.weatherlive.darkskyweather.utils.ImageConstant;
 import com.weatherlive.darkskyweather.utils.InternetConnection;
 import com.weatherlive.darkskyweather.utils.SaveUserInfoUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class PrefrencesActivity extends AppCompatActivity {
 
@@ -58,20 +41,23 @@ public class PrefrencesActivity extends AppCompatActivity {
     private NativeAd nativeAd;
     NativeAdLayout native_ad_container;
     CardView adView;
-    private boolean isLoading;
-    private UnifiedNativeAd glNativeAd;
+    public boolean isLoading;
     FrameLayout frameLayout;
+    private AdManagerAdView adView1;
 
-
+    @SuppressLint("MissingPermission")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_prefrences);
 
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION|View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+
         /*frameLayout = findViewById(R.id.native_ad_container);*/
         native_ad_container = findViewById(R.id.native_ad_container);
-
+        adView1 = findViewById(R.id.ad_view);
         tvad = findViewById(R.id.tvad);
         ivtem = (ImageView) findViewById(R.id.ivtem);
         tvbottomtemp = findViewById(R.id.tvbottomtemp);
@@ -88,10 +74,15 @@ public class PrefrencesActivity extends AppCompatActivity {
 
         init();
 
+        AdManagerAdRequest adRequest = new AdManagerAdRequest.Builder().build();
 
-        /*loadgoogle();*/
+        // Start loading the ad in the background.
+        adView1.loadAd(adRequest);
 
-        loadNativeAd();
+
+        /*gadView = findViewById(R.id.adview);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        gadView.loadAd(adRequest);*/
 
 
         if (SaveUserInfoUtils.getFromUserDefaults(getApplicationContext(), ImageConstant.PARAM_VALID_NOTIFICATION_ON_OFF).equals("")) {
@@ -131,10 +122,10 @@ public class PrefrencesActivity extends AppCompatActivity {
             }
         });
 
-
         ivshare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 fireAnalytics("ShareApp", "share");
 
                 Intent shareIntent = new Intent(Intent.ACTION_SEND);
@@ -146,6 +137,7 @@ public class PrefrencesActivity extends AppCompatActivity {
                 startActivity(Intent.createChooser(shareIntent, "choose one"));
             }
         });
+
         ivrate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -162,6 +154,7 @@ public class PrefrencesActivity extends AppCompatActivity {
                 }
             }
         });
+
         ivback.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -178,6 +171,7 @@ public class PrefrencesActivity extends AppCompatActivity {
 
             }
         });
+
         ivnotification.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -197,7 +191,7 @@ public class PrefrencesActivity extends AppCompatActivity {
 
     }
 
-    private void loadgoogle() {
+    /*private void loadgoogle() {
 
         AdLoader.Builder builder = new AdLoader.Builder(this, "ca-app-pub-3940256099942544/2247696110");
         builder.forUnifiedNativeAd(new UnifiedNativeAd.OnUnifiedNativeAdLoadedListener() {
@@ -288,7 +282,7 @@ public class PrefrencesActivity extends AppCompatActivity {
             adView.getAdvertiserView().setVisibility(View.VISIBLE);
         }
         adView.setNativeAd(nativeAd);
-    }
+    }*/
 
 
     private void init() {
@@ -321,6 +315,7 @@ public class PrefrencesActivity extends AppCompatActivity {
         try {
             startActivity(Intent.createChooser(emailIntent, "Send email via..."));
         } catch (android.content.ActivityNotFoundException ex) {
+
             Toast.makeText(getApplicationContext(),
                     "There are no email clients installed.", Toast.LENGTH_SHORT)
                     .show();
@@ -397,10 +392,9 @@ public class PrefrencesActivity extends AppCompatActivity {
         mFirebaseAnalytics.logEvent("select_image", params);
     }
 
-    private void loadNativeAd() {
+    /*private void loadNativeAd() {
 
-
-        nativeAd = new NativeAd(this, "365449667893959_365450307893895");
+        nativeAd = new NativeAd(this, getString(R.string.fb_native));
         NativeAdListener nativeAdListener = new NativeAdListener() {
 
             @Override
@@ -443,11 +437,10 @@ public class PrefrencesActivity extends AppCompatActivity {
         };
 
         // Request an ad
-        nativeAd.loadAd(
-                nativeAd.buildLoadAdConfig()
-                        .withAdListener(nativeAdListener)
-                        .withMediaCacheFlag(NativeAdBase.MediaCacheFlag.ALL)
-                        .build());
+        nativeAd.loadAd(nativeAd.buildLoadAdConfig()
+                .withAdListener(nativeAdListener)
+                .withMediaCacheFlag(NativeAdBase.MediaCacheFlag.ALL)
+                .build());
 
 
     }
@@ -490,7 +483,7 @@ public class PrefrencesActivity extends AppCompatActivity {
 
         // Register the Title and CTA button to listen for clicks.
         nativeAd.registerViewForInteraction(adView, nativeAdMedia, nativeAdIcon, clickableViews);
-    }
+    }*/
 
 
 }

@@ -40,20 +40,18 @@ public class MoreAppsActivity extends AppCompatActivity {
     ImageView back;
     Runnable runnable;
     int currentPage = 0;
-    private Handler handler;
-    private final int delay = 4000; //milliseconds
-    private int page = 0;
+    public Handler handler;
+    public final int delay = 4000; //milliseconds
+    public int page = 0;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_more_apps);
-
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION|View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
         handler = new Handler();
-
-
-
         viewPager = findViewById(R.id.viewPager);
         /*SliderDots = findViewById(R.id.SliderDots);*/
         grid_More_Apps = findViewById(R.id.grid_More_Apps);
@@ -134,7 +132,7 @@ public class MoreAppsActivity extends AppCompatActivity {
 
     }
 
-    private void grid() {
+    public void grid() {
 
         try {
             JSONObject obj = new JSONObject(loadJSONFromAssetGrid());
@@ -181,8 +179,7 @@ public class MoreAppsActivity extends AppCompatActivity {
 
     }
 
-
-    private void viewpgerslider(ArrayList<SliderModel> models) {
+    public void viewpgerslider(ArrayList<SliderModel> models) {
 
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(this, models);
         viewPager.setAdapter(viewPagerAdapter);
@@ -273,7 +270,6 @@ public class MoreAppsActivity extends AppCompatActivity {
             }
         });*/
     }
-
 
     public String loadJSONFromAsset() {
         String json = null;

@@ -1,58 +1,61 @@
 package com.weatherlive.darkskyweather.adapter;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
+import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.facebook.ads.AdError;
-import com.facebook.ads.MediaView;
-import com.facebook.ads.NativeAd;
-import com.facebook.ads.NativeAdsManager;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdLoader;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.nativead.NativeAd;
+import com.google.android.gms.ads.nativead.NativeAdView;
 import com.weatherlive.darkskyweather.Model.NextModel;
 import com.weatherlive.darkskyweather.R;
 import com.weatherlive.darkskyweather.utils.ImageConstant;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class Weather15Data extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
 
     private static final int ITEM = 0;
     private static final int AD_TYPE = 1;
-    Context context;
-    public List<Object> objects;
-    private int FIRST_ADS_ITEM_POSITION = 4;
-    private int ADS_FREQUENCY = 5;
-    private NativeAdsManager nativeAdsManager;
-    private List<NativeAd> nativeAdList = new ArrayList<>();
+    public Activity activity;
+    private static final int ITEM_FEED_COUNT = 6;
+    public ArrayList<NextModel> objects;
 
 
-    public Weather15Data(List<Object> objects, int size, Context context) {
+    public Weather15Data(ArrayList<NextModel> objects, Activity activity) {
 
-        this.context = context;
+        this.activity = activity;
         this.objects = objects;
-        int no_of_ad_request = size / (ADS_FREQUENCY - 1);
-        nativeAdsManager = new NativeAdsManager(context, "365449667893959_365450307893895", no_of_ad_request);
+
     }
 
 
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+
         RecyclerView.ViewHolder viewHolder = null;
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+/*
+        View v1 = inflater.inflate(R.layout.fiftyn_list_litem, parent, false);
+        viewHolder = new FiftenViewHolder(v1);*/
 
-        switch (viewType) {
+      /*  switch (viewType) {
             case ITEM:
                 View v1 = inflater.inflate(R.layout.fiftyn_list_litem, parent, false);
                 viewHolder = new FiftenViewHolder(v1);
@@ -61,12 +64,24 @@ public class Weather15Data extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 View view = inflater.inflate(R.layout.native_ad, parent, false);
                 viewHolder = new AdHolder(view);
                 break;
-        }
-        return viewHolder;
+        }*/
+        /*return viewHolder;*/
 
+
+        LayoutInflater layoutInflater = LayoutInflater.from(activity);
+        if (viewType == ITEM) {
+            View view = layoutInflater.inflate(R.layout.fiftyn_list_litem, parent, false);
+            return new FiftenViewHolder(view);
+        } else if (viewType == AD_TYPE) {
+            View view = layoutInflater.inflate(R.layout.layout_ad, parent, false);
+            return new AdHolder(view);
+        } else {
+
+            return null;
+        }
     }
 
-    public void initNativeAds() {
+   /* public void initNativeAds() {
 
         nativeAdsManager.setListener(new NativeAdsManager.Listener() {
             @Override
@@ -107,16 +122,52 @@ public class Weather15Data extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             notifyItemInserted(FIRST_ADS_ITEM_POSITION + (i * ADS_FREQUENCY));
         }
 
-    }
+    }*/
 
-    @SuppressLint("SetTextI18n")
+    @SuppressLint({"SetTextI18n", "MissingPermission"})
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
 
+        if (holder.getItemViewType() == ITEM) {
 
-        if (holder instanceof FiftenViewHolder) {
+            /*NextModel nextDayData = objects.get(position);*/
 
-            NextModel nextDayData = (NextModel) objects.get(position);
+            int pos = position - Math.round(position / ITEM_FEED_COUNT);
+            ((FiftenViewHolder) holder).bindData(objects.get(pos));
+
+
+        } else if (holder.getItemViewType() == AD_TYPE) {
+
+            AdHolder adHolder = (AdHolder) holder;
+
+            AdLoader.Builder builder = new AdLoader.Builder(activity, activity.getString(R.string.ad_unit_native))
+                    .forNativeAd(nativeAd -> {
+                        @SuppressLint("InflateParams") NativeAdView nativeAdView = (NativeAdView) activity.getLayoutInflater().inflate(R.layout.list_pp, null);
+                        populateNativeADView(nativeAd, nativeAdView);
+                        adHolder.frameLayout.removeAllViews();
+                        adHolder.frameLayout.addView(nativeAdView);
+                    });
+
+            AdLoader adLoader = builder.withAdListener(new AdListener() {
+                @Override
+                public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                    super.onAdFailedToLoad(loadAdError);
+                    Toast.makeText(activity, loadAdError.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }).build();
+
+            adLoader.loadAd(new AdRequest.Builder().build());
+
+
+        }
+
+    }
+
+
+
+       /* if (holder instanceof FiftenViewHolder) {
+
+            NextModel nextDayData = objects.get(position);
             FiftenViewHolder viewholder = (FiftenViewHolder) holder;
             viewholder.tvDate.setText(nextDayData.getEpochDate());
             viewholder.tvrainp.setText("" + nextDayData.getRainProbability() + "%");
@@ -129,38 +180,117 @@ public class Weather15Data extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         } else {
 
-            NativeAd nativeAd = (NativeAd) objects.get(position);
-            AdHolder adsViewHolder = (AdHolder) holder;
-            adsViewHolder.nativeAdTitle.setText(nativeAd.getAdvertiserName());
-            adsViewHolder.nativeAdBody.setText(nativeAd.getAdBodyText());
-            adsViewHolder.nativeAdSocialContext.setText(nativeAd.getAdSocialContext());
-            adsViewHolder.nativeAdCallToAction.setVisibility(nativeAd.hasCallToAction() ? View.VISIBLE : View.INVISIBLE);
-            adsViewHolder.nativeAdCallToAction.setText(nativeAd.getAdCallToAction());
-            adsViewHolder.sponsoredLabel.setText(nativeAd.getSponsoredTranslation());
-            List<View> clickableViews = new ArrayList<>();
-            clickableViews.add(adsViewHolder.nativeAdTitle);
-            clickableViews.add(adsViewHolder.nativeAdCallToAction);
-            nativeAd.registerViewForInteraction(adsViewHolder.itemView, adsViewHolder.nativeAdMedia, adsViewHolder.nativeAdIcon, clickableViews);
-        }
 
-    }
+
+        }
+*/
+
 
     @Override
     public int getItemCount() {
+
+        if (objects.size() > 0) {
+            return objects.size() + Math.round(objects.size() / ITEM_FEED_COUNT);
+        }
         return objects.size();
     }
 
     @Override
     public int getItemViewType(int position) {
 
-        if (objects.get(position) instanceof NativeAd) {
+
+       /* if (objects.get(position) instanceof NativeAd) {
             return AD_TYPE;
         } else {
             return ITEM;
+        }*/
+
+        if ((position + 1) % ITEM_FEED_COUNT == 0) {
+            return AD_TYPE;
         }
+
+        return ITEM;
+
+
     }
 
-    private static class FiftenViewHolder extends RecyclerView.ViewHolder {
+    private void populateNativeADView(NativeAd nativeAd, NativeAdView adView) {
+        // Set the media view.
+        adView.setMediaView(adView.findViewById(R.id.ad_media));
+
+        // Set other ad assets.
+        adView.setHeadlineView(adView.findViewById(R.id.ad_headline));
+        adView.setBodyView(adView.findViewById(R.id.ad_body));
+        adView.setCallToActionView(adView.findViewById(R.id.ad_call_to_action));
+        adView.setIconView(adView.findViewById(R.id.ad_app_icon));
+        adView.setPriceView(adView.findViewById(R.id.ad_price));
+        adView.setStarRatingView(adView.findViewById(R.id.ad_stars));
+        adView.setStoreView(adView.findViewById(R.id.ad_store));
+        adView.setAdvertiserView(adView.findViewById(R.id.ad_advertiser));
+
+        // The headline and mediaContent are guaranteed to be in every UnifiedNativeAd.
+        ((TextView) adView.getHeadlineView()).setText(nativeAd.getHeadline());
+        adView.getMediaView().setMediaContent(nativeAd.getMediaContent());
+
+        // These assets aren't guaranteed to be in every UnifiedNativeAd, so it's important to
+        // check before trying to display them.
+        if (nativeAd.getBody() == null) {
+            adView.getBodyView().setVisibility(View.INVISIBLE);
+        } else {
+            adView.getBodyView().setVisibility(View.VISIBLE);
+            ((TextView) adView.getBodyView()).setText(nativeAd.getBody());
+        }
+
+        if (nativeAd.getCallToAction() == null) {
+            adView.getCallToActionView().setVisibility(View.INVISIBLE);
+        } else {
+            adView.getCallToActionView().setVisibility(View.VISIBLE);
+            ((Button) adView.getCallToActionView()).setText(nativeAd.getCallToAction());
+        }
+
+        if (nativeAd.getIcon() == null) {
+            adView.getIconView().setVisibility(View.GONE);
+        } else {
+            ((ImageView) adView.getIconView()).setImageDrawable(
+                    nativeAd.getIcon().getDrawable());
+            adView.getIconView().setVisibility(View.VISIBLE);
+        }
+
+        if (nativeAd.getPrice() == null) {
+            adView.getPriceView().setVisibility(View.INVISIBLE);
+        } else {
+            adView.getPriceView().setVisibility(View.VISIBLE);
+            ((TextView) adView.getPriceView()).setText(nativeAd.getPrice());
+        }
+
+        if (nativeAd.getStore() == null) {
+            adView.getStoreView().setVisibility(View.INVISIBLE);
+        } else {
+            adView.getStoreView().setVisibility(View.VISIBLE);
+            ((TextView) adView.getStoreView()).setText(nativeAd.getStore());
+        }
+
+        if (nativeAd.getStarRating() == null) {
+            adView.getStarRatingView().setVisibility(View.INVISIBLE);
+        } else {
+            ((RatingBar) adView.getStarRatingView()).setRating(nativeAd.getStarRating().floatValue());
+            adView.getStarRatingView().setVisibility(View.VISIBLE);
+        }
+
+        if (nativeAd.getAdvertiser() == null) {
+            adView.getAdvertiserView().setVisibility(View.INVISIBLE);
+        } else {
+            ((TextView) adView.getAdvertiserView()).setText(nativeAd.getAdvertiser());
+            adView.getAdvertiserView().setVisibility(View.VISIBLE);
+        }
+
+        // This method tells the Google Mobile Ads SDK that you have finished populating your
+        // native ad view with this native ad.
+        adView.setNativeAd(nativeAd);
+    }
+
+
+    class FiftenViewHolder extends RecyclerView.ViewHolder {
 
         TextView tvDate, tvweathetext, tvrainp, maxtemp, tvcc, tvwind;
         ImageView ivIcon;
@@ -178,31 +308,30 @@ public class Weather15Data extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         }
 
+        @SuppressLint("SetTextI18n")
+        public void bindData(NextModel nextModel) {
+
+            tvDate.setText(nextModel.getEpochDate());
+            tvrainp.setText("" + nextModel.getRainProbability() + "%");
+            maxtemp.setText("" + Math.round(Float.parseFloat(nextModel.getMaxTempValue())) + " " + "" + (char) 0x00B0 + nextModel.getMaxTempUnit());
+            ivIcon.setBackgroundResource(ImageConstant.weatherIcon[Integer.parseInt(nextModel.getIcon()) - 1]);
+            tvweathetext.setText("" + nextModel.getIconPhrase());
+            tvcc.setText(nextModel.getCloudCover() + "%");
+            tvwind.setText(nextModel.getWindValue() + "" + nextModel.getWindUnit());
+
+        }
     }
 
-    private static class AdHolder extends RecyclerView.ViewHolder {
+    class AdHolder extends RecyclerView.ViewHolder {
 
-        public MediaView nativeAdIcon;
-        public TextView nativeAdTitle;
-        public MediaView nativeAdMedia;
-        public TextView nativeAdSocialContext;
-        public TextView nativeAdBody;
-        public TextView sponsoredLabel;
-        public Button nativeAdCallToAction;
 
+        FrameLayout frameLayout;
 
         public AdHolder(@NonNull View itemView) {
             super(itemView);
-
-            nativeAdIcon = itemView.findViewById(R.id.native_ad_icon);
-            nativeAdTitle = itemView.findViewById(R.id.native_ad_title);
-            nativeAdMedia = itemView.findViewById(R.id.native_ad_media);
-            nativeAdSocialContext = itemView.findViewById(R.id.native_ad_social_context);
-            nativeAdBody = itemView.findViewById(R.id.native_ad_body);
-            sponsoredLabel = itemView.findViewById(R.id.native_ad_sponsored_label);
-            nativeAdCallToAction = itemView.findViewById(R.id.native_ad_call_to_action);
+            frameLayout = itemView.findViewById(R.id.adLayout);
         }
-
 
     }
 }
+

@@ -11,23 +11,25 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RatingBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.facebook.ads.Ad;
-import com.facebook.ads.AdError;
-import com.facebook.ads.AdOptionsView;
-import com.facebook.ads.MediaView;
 import com.facebook.ads.NativeAd;
-import com.facebook.ads.NativeAdBase;
 import com.facebook.ads.NativeAdLayout;
-import com.facebook.ads.NativeAdListener;
 import com.facebook.ads.NativeAdsManager;
+import com.google.android.ads.nativetemplates.TemplateView;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdLoader;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.nativead.NativeAdView;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.weatherlive.darkskyweather.ItemClick;
 import com.weatherlive.darkskyweather.Model.NextModel;
@@ -51,6 +53,7 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     private static final int TYPE_SEARCH = 0;
     private static final int TYPE_ITEM = 1;
     ArrayList<NextModel> data;
+    ArrayList<NextModel> items;
     ArrayList<OneHourModel> chartDatas;
     private NativeAdsManager nativeAdsManager;
     private List<NativeAd> nativeAdList = new ArrayList<>();
@@ -74,14 +77,15 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     Weather15Data weather15Days;
 
 
-    public WeatherListDataAdapter(Activity context, ArrayList<NextModel> data, List<Object> objectArrayList, ArrayList<OneHourModel> chartDatas, String WeatherText, String date, String Temp, String Unit, String humidity,
+    @SuppressLint("MissingPermission")
+    public WeatherListDataAdapter(Activity context, ArrayList<NextModel> data, ArrayList<NextModel> items, ArrayList<OneHourModel> chartDatas, String WeatherText, String date, String Temp, String Unit, String humidity,
                                   String cloudCover, String minmax, String pressure, String dewPoint, String wind, String WeatherIcon, String address, ItemClick itemClick) {
 
         this.layoutInflater = LayoutInflater.from(context);
         expandedPositionSet = new HashSet<>();
         this.context = context;
         this.data = data;
-        this.objectArrayList = objectArrayList;
+        this.items = items;
         this.WeatherText = WeatherText;
         this.date = date;
         this.Temp = Temp;
@@ -97,8 +101,8 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         this.chartDatas = chartDatas;
         this.itemClick = itemClick;
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(context);
-        weather15Days = new Weather15Data(objectArrayList, objectArrayList.size(), context);
-        weather15Days.initNativeAds();
+
+        /* weather15Days.initNativeAds();*/
     }
 
 
@@ -106,15 +110,14 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-        Log.e("view", "onCreateViewHolder: " + viewType);
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.top_list, parent, false);
         return new HEaderViewHolder(view);
 
     }
 
-    @SuppressLint("SetTextI18n")
+    @SuppressLint({"SetTextI18n", "MissingPermission"})
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, @SuppressLint("RecyclerView") int position) {
 
         HEaderViewHolder searchViewHolder = (HEaderViewHolder) holder;
 
@@ -137,6 +140,48 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         } catch (ParseException e) {
             e.printStackTrace();
         }
+
+
+        //top google native
+        AdLoader.Builder builder = new AdLoader.Builder(context, context.getString(R.string.ad_unit_native))
+                .forNativeAd(new com.google.android.gms.ads.nativead.NativeAd.OnNativeAdLoadedListener() {
+                    @Override
+                    public void onNativeAdLoaded(@NonNull com.google.android.gms.ads.nativead.NativeAd nativeAd) {
+                        @SuppressLint("InflateParams") NativeAdView nativeAdView = (NativeAdView) context.getLayoutInflater().inflate(R.layout.top_native_lay, null);
+                        populateNativeADView(nativeAd, nativeAdView);
+                        ((HEaderViewHolder) holder).frameLayout.removeAllViews();
+                        ((HEaderViewHolder) holder).frameLayout.addView(nativeAdView);
+                    }
+                });
+
+        AdLoader adLoader = builder.withAdListener(new AdListener() {
+            @Override
+            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                super.onAdFailedToLoad(loadAdError);
+                Toast.makeText(context, loadAdError.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }).build();
+
+        adLoader.loadAd(new AdRequest.Builder().build());
+
+        //bottom google native
+        AdLoader.Builder builder1 = new AdLoader.Builder(context, context.getString(R.string.ad_unit_native))
+                .forNativeAd(nativeAd -> {
+                    @SuppressLint("InflateParams") NativeAdView nativeAdView = (NativeAdView) context.getLayoutInflater().inflate(R.layout.list_pp, null);
+                    populateNativeADView(nativeAd, nativeAdView);
+                    ((HEaderViewHolder) holder).frameLayout1.removeAllViews();
+                    ((HEaderViewHolder) holder).frameLayout1.addView(nativeAdView);
+                });
+
+        AdLoader adLoader1 = builder1.withAdListener(new AdListener() {
+            @Override
+            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                super.onAdFailedToLoad(loadAdError);
+                Toast.makeText(context, loadAdError.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }).build();
+
+        adLoader1.loadAd(new AdRequest.Builder().build());
 
 
         searchViewHolder.ivSetting.setOnClickListener(new View.OnClickListener() {
@@ -162,6 +207,8 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         searchViewHolder.getcurrentlocations.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+
                 fireAnalytics("CurrentLocationSet", "location");
                 HomeActivity homeActivity = (HomeActivity) context;
                 homeActivity.getCurrentLocation();
@@ -170,16 +217,17 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         });
 
         searchViewHolder.rv_15days.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, false));
+        weather15Days = new Weather15Data(items, context);
         searchViewHolder.rv_15days.setAdapter(weather15Days);
 
-        loadNativeAd(searchViewHolder);
+        /*loadNativeAd(searchViewHolder);*/
 
 
     }
 
-    private void loadNativeAd(HEaderViewHolder searchViewHolder) {
+   /* private void loadNativeAd(HEaderViewHolder searchViewHolder) {
 
-        nativeAd = new NativeAd(context, "365449667893959_365450307893895");
+        nativeAd = new NativeAd(context, "IMG_16_9_APP_INSTALL#330540714374985_330541251041598");
         NativeAdListener nativeAdListener = new NativeAdListener() {
 
             @Override
@@ -265,7 +313,7 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         nativeAd.registerViewForInteraction(adView, nativeAdMedia, nativeAdIcon, clickableViews);
 
 
-    }
+    }*/
 
     @Override
     public int getItemCount() {
@@ -294,13 +342,14 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     class HEaderViewHolder extends RecyclerView.ViewHolder {
 
         RelativeLayout lout_ads;
-
+        TemplateView template;
         LinearLayout ivAddLocation;
         LinearLayout ivSetting;
         ImageView ivCurrentLocation;
         LinearLayout getcurrentlocations;
         RecyclerView listHourly;
-
+        FrameLayout frameLayout;
+        FrameLayout frameLayout1;
         ImageView main_bg;
         ImageView ivcurrentimg;
 
@@ -337,7 +386,8 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         @SuppressLint("SetTextI18n")
         public HEaderViewHolder(View view) {
             super(view);
-
+            frameLayout = view.findViewById(R.id.adLayout);
+            frameLayout1 = view.findViewById(R.id.adLayout1);
             nativeAdLayout = view.findViewById(R.id.native_ad_container);
             ivAddLocation = (LinearLayout) view.findViewById(R.id.ivAddLocation);
             ivSetting = (LinearLayout) view.findViewById(R.id.ivSetting);
@@ -345,6 +395,7 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             getcurrentlocations = (LinearLayout) view.findViewById(R.id.getcurrentlocations);
             tvcurrentdate = view.findViewById(R.id.tvcurrentdt);
             ivcurrentimg = view.findViewById(R.id.ivcurrentimg);
+            template = view.findViewById(R.id.my_template);
 
             WeatherText = (TextView) view.findViewById(R.id.WeatherText);
             tvLocation = (TextView) view.findViewById(R.id.tvLocation);
@@ -488,6 +539,7 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         TextView tvDate, tvweathetext, tvrainp, maxtemp, tvcc, tvwind;
         ImageView ivIcon;
 
+
         public ReyclerViewHolder(View view) {
             super(view);
 
@@ -548,6 +600,82 @@ public class WeatherListDataAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
         });
     }*/
+
+
+    private void populateNativeADView(com.google.android.gms.ads.nativead.NativeAd nativeAd, NativeAdView adView) {
+        // Set the media view.
+        adView.setMediaView(adView.findViewById(R.id.ad_media));
+
+        // Set other ad assets.
+        adView.setHeadlineView(adView.findViewById(R.id.ad_headline));
+        adView.setBodyView(adView.findViewById(R.id.ad_body));
+        adView.setCallToActionView(adView.findViewById(R.id.ad_call_to_action));
+        adView.setIconView(adView.findViewById(R.id.ad_app_icon));
+        adView.setPriceView(adView.findViewById(R.id.ad_price));
+        adView.setStarRatingView(adView.findViewById(R.id.ad_stars));
+        adView.setStoreView(adView.findViewById(R.id.ad_store));
+        adView.setAdvertiserView(adView.findViewById(R.id.ad_advertiser));
+
+        // The headline and mediaContent are guaranteed to be in every UnifiedNativeAd.
+        ((TextView) adView.getHeadlineView()).setText(nativeAd.getHeadline());
+        adView.getMediaView().setMediaContent(nativeAd.getMediaContent());
+
+        // These assets aren't guaranteed to be in every UnifiedNativeAd, so it's important to
+        // check before trying to display them.
+        if (nativeAd.getBody() == null) {
+            adView.getBodyView().setVisibility(View.INVISIBLE);
+        } else {
+            adView.getBodyView().setVisibility(View.VISIBLE);
+            ((TextView) adView.getBodyView()).setText(nativeAd.getBody());
+        }
+
+        if (nativeAd.getCallToAction() == null) {
+            adView.getCallToActionView().setVisibility(View.INVISIBLE);
+        } else {
+            adView.getCallToActionView().setVisibility(View.VISIBLE);
+            ((Button) adView.getCallToActionView()).setText(nativeAd.getCallToAction());
+        }
+
+        if (nativeAd.getIcon() == null) {
+            adView.getIconView().setVisibility(View.GONE);
+        } else {
+            ((ImageView) adView.getIconView()).setImageDrawable(
+                    nativeAd.getIcon().getDrawable());
+            adView.getIconView().setVisibility(View.VISIBLE);
+        }
+
+        if (nativeAd.getPrice() == null) {
+            adView.getPriceView().setVisibility(View.INVISIBLE);
+        } else {
+            adView.getPriceView().setVisibility(View.VISIBLE);
+            ((TextView) adView.getPriceView()).setText(nativeAd.getPrice());
+        }
+
+        if (nativeAd.getStore() == null) {
+            adView.getStoreView().setVisibility(View.INVISIBLE);
+        } else {
+            adView.getStoreView().setVisibility(View.VISIBLE);
+            ((TextView) adView.getStoreView()).setText(nativeAd.getStore());
+        }
+
+        if (nativeAd.getStarRating() == null) {
+            adView.getStarRatingView().setVisibility(View.INVISIBLE);
+        } else {
+            ((RatingBar) adView.getStarRatingView()).setRating(nativeAd.getStarRating().floatValue());
+            adView.getStarRatingView().setVisibility(View.VISIBLE);
+        }
+
+        if (nativeAd.getAdvertiser() == null) {
+            adView.getAdvertiserView().setVisibility(View.INVISIBLE);
+        } else {
+            ((TextView) adView.getAdvertiserView()).setText(nativeAd.getAdvertiser());
+            adView.getAdvertiserView().setVisibility(View.VISIBLE);
+        }
+
+        // This method tells the Google Mobile Ads SDK that you have finished populating your
+        // native ad view with this native ad.
+        adView.setNativeAd(nativeAd);
+    }
 
 
 }

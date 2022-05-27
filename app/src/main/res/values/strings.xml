@@ -38,4 +38,36 @@
     <string name="more">More</string>
     <string name="_4_1">4.1</string>
     <string name="lorem_ipsum_is_simply_dummy_text_of_the_printing_and_typesetting_industry">Lorem Ipsum is simply dummy text of the printing and typesetting industry.</string>
+
+    <!--test ad-->
+    <!--<string name="fb_int">IMG_16_9_APP_INSTALL#330540714374985_330541361041587</string>
+    <string name="fb_native">IMG_16_9_APP_INSTALL#330540714374985_330541251041598</string>-->
+
+    <string name="google_banner">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="google_int">ca-app-pub-3940256099942544/1033173712</string>
+    <string name="test_app_id">ca-app-pub-3940256099942544~3347511713</string>
+    <string name="test_app_id1">ca-app-pub-9611919736642270~3440171884</string>
+
+
+    <!--ad manager test id-->
+
+    <string name="ad_unit_id_banner">/6499/example/banner</string>
+    <string name="ad_unit_int">/6499/example/interstitial</string>
+    <string name="ad_unit_native">/6499/example/native</string>
+    <string name="ad_unit_app_open">ca-app-pub-3940256099942544/3419835294</string>
+
+    <!--ad manager live id-->
+
+<!--    <string name="ad_unit_id_banner">/22387492205,22654642069/com.weatherlive.darkskyweather.Banner0.1638257732</string>-->
+<!--    <string name="ad_unit_int">/22387492205,22654642069/com.weatherlive.darkskyweather.Interstitial0.1638257758</string>-->
+<!--    <string name="ad_unit_native">/22387492205,22654642069/com.weatherlive.darkskyweather.Native0.1638257849</string>-->
+<!--    <string name="ad_unit_app_open">/22387492205,22654642069/com.weatherlive.darkskyweather.AppOpen0.1638257713</string>-->
+
+    <!--live-->
+    <!-- <string name="l_fb_int">365449667893959_365451851227074</string>
+     <string name="l_fb_native">365449667893959_365450307893895</string>
+     <string name="l_google_banner">ca-app-pub-4293491867572780/1243883384</string>
+     <string name="live_app_id">ca-app-pub-4293491867572780~2887984618</string>-->
+
+
 </resources>
