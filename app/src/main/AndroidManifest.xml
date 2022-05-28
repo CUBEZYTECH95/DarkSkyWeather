@@ -55,7 +55,8 @@
         <activity
             android:name=".activity.SplashActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.WeatherData.NoActionBar">
+            android:theme="@style/Theme.WeatherData.NoActionBar"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -65,7 +66,7 @@
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value= "ca-app-pub-3206456546664189~7970765493" />
+            android:value= "ca-app-pub-3940256099942544~3347511713" />
 
 
     </application>
