@@ -13,8 +13,8 @@ android {
         applicationId "com.weatherlive.darkskyweather"
         minSdkVersion 19
         targetSdkVersion 31
-        versionCode 27
-        versionName "1.15.4"
+        versionCode 28
+        versionName "1.15.5"
         setProperty("archivesBaseName", "Accurate Weather" + "-v" + versionCode + "(" + versionName + ")")
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

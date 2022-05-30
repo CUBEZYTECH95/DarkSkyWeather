@@ -51,17 +51,17 @@
     <!--ca-app-pub-3206456546664189~7970765493-->
     <!--ad manager test id-->
 
-    <string name="ad_unit_id_banner">/6499/example/banner</string>
-    <string name="ad_unit_int">/6499/example/interstitial</string>
-    <string name="ad_unit_native">/6499/example/native</string>
-    <string name="ad_unit_app_open">ca-app-pub-3940256099942544/3419835294</string>
+<!--    <string name="ad_unit_id_banner">/6499/example/banner</string>-->
+<!--    <string name="ad_unit_int">/6499/example/interstitial</string>-->
+<!--    <string name="ad_unit_native">/6499/example/native</string>-->
+<!--    <string name="ad_unit_app_open">ca-app-pub-3940256099942544/3419835294</string>-->
 
     <!--ad manager live id-->
 
-<!--    <string name="ad_unit_id_banner">/22387492205,22654642069/com.weatherlive.darkskyweather.Banner0.1638257732</string>-->
-<!--    <string name="ad_unit_int">/22387492205,22654642069/com.weatherlive.darkskyweather.Interstitial0.1638257758</string>-->
-<!--    <string name="ad_unit_native">/22387492205,22654642069/com.weatherlive.darkskyweather.Native0.1638257849</string>-->
-<!--    <string name="ad_unit_app_open">/22387492205,22654642069/com.weatherlive.darkskyweather.AppOpen0.1638257713</string>-->
+    <string name="ad_unit_id_banner">/22387492205,22654642069/com.weatherlive.darkskyweather.Banner0.1638257732</string>
+    <string name="ad_unit_int">/22387492205,22654642069/com.weatherlive.darkskyweather.Interstitial0.1638257758</string>
+    <string name="ad_unit_native">/22387492205,22654642069/com.weatherlive.darkskyweather.Native0.1638257849</string>
+    <string name="ad_unit_app_open">/22387492205,22654642069/com.weatherlive.darkskyweather.AppOpen0.1638257713</string>
 
     <!--live-->
     <!-- <string name="l_fb_int">365449667893959_365451851227074</string>
