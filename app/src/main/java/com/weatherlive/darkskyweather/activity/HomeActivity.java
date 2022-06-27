@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
@@ -24,6 +25,8 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -82,6 +85,7 @@ import com.weatherlive.darkskyweather.adapter.WeatherListDataAdapter;
 import com.weatherlive.darkskyweather.utils.ImageConstant;
 import com.weatherlive.darkskyweather.utils.InternetConnection;
 import com.weatherlive.darkskyweather.utils.NetworkUtility;
+import com.weatherlive.darkskyweather.utils.PermissionUtils;
 import com.weatherlive.darkskyweather.utils.SaveUserInfoUtils;
 import com.weatherlive.darkskyweather.utils.SharedPrefs;
 import com.weatherlive.darkskyweather.utils.SharedUtils;
@@ -105,6 +109,8 @@ import java.util.Locale;
 import cz.msebera.android.httpclient.Header;
 
 public class HomeActivity extends AppCompatActivity implements /*AdListener,*/ ItemClick {
+
+//    private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
 
     private String mLastUpdateTime;
     private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
@@ -147,6 +153,9 @@ public class HomeActivity extends AppCompatActivity implements /*AdListener,*/ I
     private AdManagerAdView adView;
     private AdManagerInterstitialAd interstitialAd;
     RelativeLayout rlContainer2;
+
+    private static final int ACCESS_FINE_LOCATION_PERMISSION_REQUEST_CODE = 1000;
+    private static final String TAG = "TEST";
 
     @SuppressLint("MissingPermission")
     @Override
@@ -248,6 +257,7 @@ public class HomeActivity extends AppCompatActivity implements /*AdListener,*/ I
         } else {
             /* adContainer.setVisibility(View.GONE);*/
         }
+//        runtimePermission();
         init();
         restoreValuesFromBundle(savedInstanceState);
     }
@@ -461,44 +471,48 @@ public class HomeActivity extends AppCompatActivity implements /*AdListener,*/ I
         builder.addLocationRequest(mLocationRequest);
         mLocationSettingsRequest = builder.build();
 
-        if (Build.VERSION.SDK_INT >= 23) {
-            Dexter.withActivity(this)
-                    .withPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-                    .withListener(new PermissionListener() {
-                        @Override
-                        public void onPermissionGranted(PermissionGrantedResponse response) {
-                            mRequestingLocationUpdates = true;
-                            startLocationUpdates();
-                            isAllow = true;
-                            default_lat = 0;
-                            default_long = 0;
-                        }
 
-                        @Override
-                        public void onPermissionDenied(PermissionDeniedResponse response) {
-
-                            if (response.isPermanentlyDenied()) {
-                                // open device settings when the permission is
-                                // denied permanently
-                                openSettings();
-
-                            } else {
-                                isAllow = true;
-                                updateLocationUI();
-
-                            }
-                        }
-
-                        @Override
-                        public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {
-                            token.continuePermissionRequest();
-                        }
-                    }).check();
-        } else {
-
-            mRequestingLocationUpdates = true;
-            startLocationUpdates();
-        }
+//        if (Build.VERSION.SDK_INT >= 23) {
+//            Dexter.withActivity(this)
+//                    .withPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+//                    .withListener(new PermissionListener() {
+//                        @Override
+//                        public void onPermissionGranted(PermissionGrantedResponse response) {
+//                            mRequestingLocationUpdates = true;
+//                            startLocationUpdates();
+//                            isAllow = true;
+//                            default_lat = 0;
+//                            default_long = 0;
+//                        }
+//
+//                        @Override
+//                        public void onPermissionDenied(PermissionDeniedResponse response) {
+//
+//
+//
+//                            if (response.isPermanentlyDenied()) {
+//                                // open device settings when the permission is
+//                                // denied permanently
+//                                openSettings();
+//
+//                            }
+//                            else {
+//                                isAllow = false;
+//                                updateLocationUI();
+//
+//                            }
+//                        }
+//
+//                        @Override
+//                        public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {
+//                            token.continuePermissionRequest();
+//                        }
+//                    }).check();
+//        } else {
+//
+//            mRequestingLocationUpdates = true;
+//            startLocationUpdates();
+//        }
 
         listData = (RecyclerView) findViewById(R.id.listData);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
@@ -507,6 +521,7 @@ public class HomeActivity extends AppCompatActivity implements /*AdListener,*/ I
 
         isInternetPresent = cd.isConnectingToInternet();
     }
+
 
     private void updateLocationUI() {
         if (mCurrentLocation != null) {
@@ -1404,34 +1419,101 @@ public class HomeActivity extends AppCompatActivity implements /*AdListener,*/ I
         return permissionState == PackageManager.PERMISSION_GRANTED;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onResume() {
         super.onResume();
+        if ( ContextCompat.checkSelfPermission (this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if ( PermissionUtils.neverAskAgainSelected (this, Manifest.permission.ACCESS_FINE_LOCATION )) {
+                    displayNeverAskAgainDialog();
+                } else {
+                    ActivityCompat.requestPermissions(this, new String[]{ Manifest.permission.ACCESS_FINE_LOCATION },
+                            ACCESS_FINE_LOCATION_PERMISSION_REQUEST_CODE );
+                }
+            }
 
+        }
+        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED){
+            startLocationUpdates();
+            updateLocationUI();
+        }
+
+        //Heloo
         // Resuming location updates depending on button state and
         // allowed permissions
-        if (mRequestingLocationUpdates && checkPermissions()) {
-//            if (count == 0) {
-//                if (isInternetPresent) {
-//                    final Handler handler = new Handler();
-//                    handler.postDelayed(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            showAdDailog();
-//                            count = 1;
-//                        }
-//                    }, 3000);
-//
-//                }
-//            }
-            startLocationUpdates();
-        }
-//        apponcreate = true;
+//        if (mRequestingLocationUpdates && checkPermissions()) {
+////            if (count == 0) {
+////                if (isInternetPresent) {
+////                    final Handler handler = new Handler();
+////                    handler.postDelayed(new Runnable() {
+////                        @Override
+////                        public void run() {
+////                            showAdDailog();
+////                            count = 1;
+////                        }
+////                    }, 3000);
+////
+////                }
+////            }
+//            startLocationUpdates();
+//        }
+////        apponcreate = true;
+////
+//        updateLocationUI();
+    }
+    private void displayNeverAskAgainDialog() {
 
+        AlertDialog.Builder builder = new AlertDialog.Builder (this );
+        builder.setMessage( "For know weather forecast you must need to access the location for performing necessary task. Please permit the permission through "
+                + "Settings screen.\n\nSelect Permissions -> Enable permission" );
+        builder.setCancelable(false);
+        builder.setPositiveButton ("Permit Manually", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                Intent intent = new Intent();
+                intent.setAction( Settings.ACTION_APPLICATION_DETAILS_SETTINGS );
+                Uri uri = Uri.fromParts("package", getPackageName(), null);
+                intent.setData(uri);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick( DialogInterface dialogInterface, int i ) {
+                finish();
+
+            }
+        });
+        builder.show();
+
+        isAllow = false;
         updateLocationUI();
     }
 
-    public void onSettingClick() {
+    @Override
+    public void onRequestPermissionsResult ( int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (ACCESS_FINE_LOCATION_PERMISSION_REQUEST_CODE == requestCode) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                mRequestingLocationUpdates = true;
+                startLocationUpdates();
+                isAllow = true;
+                default_lat = 0;
+                default_long = 0;
+                Log.i(TAG, "Permission granted successfully");
+            } else {
+                PermissionUtils.setShouldShowStatus(this, Manifest.permission.ACCESS_FINE_LOCATION);
+
+            }
+
+        }
+    }
+
+
+        public void onSettingClick() {
 
         Intent intent = new Intent(HomeActivity.this, PrefrencesActivity.class);
         startActivityForResult(intent, 12);
